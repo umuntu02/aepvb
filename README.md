@@ -1,36 +1,149 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AEPVB - Next.js App with PostgreSQL & Drizzle ORM
 
-## Getting Started
+A modern Next.js application built with TypeScript, TailwindCSS, shadcn UI, PostgreSQL, Drizzle ORM, and Zustand.
 
-First, run the development server:
+## Features
+
+- ⚡ Next.js 16 with App Router
+- 🎨 TailwindCSS for styling
+- 🎯 shadcn UI components
+- 🗄️ PostgreSQL database with Drizzle ORM
+- 🐻 Zustand for state management
+- 📰 News/Events management system
+
+## Prerequisites
+
+- Node.js 18+ and npm
+- PostgreSQL database (local or remote)
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure Database
+
+Create a `.env.local` file in the root directory:
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/aepvb
+```
+
+Replace `user`, `password`, `localhost`, `5432`, and `aepvb` with your PostgreSQL credentials.
+
+### 3. Create Database
+
+Create the database in PostgreSQL:
+
+```bash
+createdb aepvb
+```
+
+Or using psql:
+
+```sql
+CREATE DATABASE aepvb;
+```
+
+### 4. Generate and Run Migrations
+
+Generate the database schema:
+
+```bash
+npm run db:generate
+```
+
+Push the schema to the database:
+
+```bash
+npm run db:push
+```
+
+Alternatively, you can use migrations:
+
+```bash
+npm run db:migrate
+```
+
+### 5. Seed the Database
+
+Populate the database with sample organization event news:
+
+```bash
+npm run seed
+```
+
+### 6. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+├── app/
+│   ├── api/
+│   │   └── news/
+│   │       └── route.ts      # API route for fetching news
+│   ├── page.tsx               # Homepage displaying news
+│   ├── layout.tsx            # Root layout
+│   └── globals.css           # Global styles
+├── components/
+│   └── ui/                   # shadcn UI components
+├── lib/
+│   ├── db/
+│   │   ├── index.ts          # Database connection
+│   │   └── schema.ts         # Drizzle schema definitions
+│   ├── store/
+│   │   └── news-store.ts     # Zustand store for news
+│   └── utils.ts              # Utility functions
+├── scripts/
+│   └── seed.ts               # Database seeding script
+└── drizzle.config.ts         # Drizzle configuration
+```
 
-## Learn More
+## Available Scripts
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run db:generate` - Generate Drizzle migrations
+- `npm run db:push` - Push schema changes to database
+- `npm run db:migrate` - Run migrations
+- `npm run db:studio` - Open Drizzle Studio
+- `npm run seed` - Seed database with sample data
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Database Schema
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### News Table
 
-## Deploy on Vercel
+- `id` - Serial primary key
+- `title` - News title (varchar 255)
+- `content` - News content (text)
+- `author` - Author name (varchar 100)
+- `organization` - Organization name (varchar 100)
+- `eventDate` - Optional event date (timestamp)
+- `createdAt` - Creation timestamp
+- `updatedAt` - Update timestamp
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Technologies Used
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Next.js 16** - React framework
+- **TypeScript** - Type safety
+- **TailwindCSS** - Utility-first CSS
+- **shadcn UI** - Component library
+- **PostgreSQL** - Database
+- **Drizzle ORM** - Type-safe SQL ORM
+- **Zustand** - State management
+- **ESLint** - Code linting
+
+## License
+
+MIT
