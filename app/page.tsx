@@ -1,66 +1,74 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { db } from '@/lib/db';
-import { news, type News } from '@/lib/db/schema';
-import { desc } from 'drizzle-orm';
+import { db } from "@/lib/db";
+import { news } from "@/lib/db/schema";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar, User } from "lucide-react";
+import { desc } from "drizzle-orm";
+
+async function getNews() {
+  try {
+    const allNews = await db.select().from(news).orderBy(desc(news.createdAt));
+    return allNews;
+  } catch (error) {
+    console.error("Error fetching news:", error);
+    return [];
+  }
+}
 
 export default async function Home() {
-  let allNews: News[] = [];
-  try {
-    allNews = await db.select().from(news).orderBy(desc(news.createdAt));
-  } catch (error) {
-    console.error('Error fetching news:', error);
-  }
+  const newsItems = await getNews();
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto py-12 px-4">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Organization Event News</h1>
-          <p className="text-muted-foreground">
-            Stay updated with the latest events and announcements
+    <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-black dark:to-zinc-900">
+      <main className="container mx-auto px-4 py-12 max-w-6xl">
+        <div className="mb-12 text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-4">
+            Organization News & Events
+          </h1>
+          <p className="text-lg text-zinc-600 dark:text-zinc-400">
+            Stay updated with our latest announcements and upcoming events
           </p>
         </div>
 
-        {allNews.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground">
-                No news available. Run the seed script to add sample data.
-              </p>
-            </CardContent>
-          </Card>
+        {newsItems.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-zinc-600 dark:text-zinc-400">
+              No news items found. Run the seed script to populate the database.
+            </p>
+          </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {allNews.map((item) => (
-              <Card key={item.id} className="flex flex-col">
+            {newsItems.map((item) => (
+              <Card key={item.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle className="line-clamp-2">{item.title}</CardTitle>
-                  <CardDescription>
-                    {item.organization} • {item.author}
-                  </CardDescription>
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-xl leading-tight">
+                      {item.title}
+                    </CardTitle>
+                    <span className="inline-flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 text-xs font-medium text-zinc-800 dark:text-zinc-200">
+                      {item.category}
+                    </span>
+                  </div>
                 </CardHeader>
-                <CardContent className="flex-1">
-                  <p className="text-sm text-muted-foreground line-clamp-4 mb-4">
+                <CardContent>
+                  <CardDescription className="text-base mb-4 line-clamp-3">
                     {item.content}
-                  </p>
-                  {item.eventDate && (
-                    <p className="text-xs text-muted-foreground">
-                      Event Date:{' '}
-                      {new Date(item.eventDate).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Published:{' '}
-                    {new Date(item.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </p>
+                  </CardDescription>
+                  <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span>{item.author}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>
+                        {new Date(item.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
