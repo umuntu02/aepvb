@@ -7,9 +7,15 @@ import { desc } from "drizzle-orm";
 async function getNews() {
   try {
     const allNews = await db.select().from(news).orderBy(desc(news.createdAt));
+    console.log("Fetched news items:", allNews.length);
     return allNews;
   } catch (error) {
     console.error("Error fetching news:", error);
+    // Log the full error for debugging
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     return [];
   }
 }
