@@ -7,9 +7,31 @@ import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
+import { generateMetadata as genMeta } from "@/lib/metadata";
 
 interface ProgramDetailPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: ProgramDetailPageProps) {
+  const { slug } = await params;
+  const program = getProgramBySlug(slug);
+  
+  if (!program) {
+    return genMeta({
+      title: "Programme introuvable",
+      description: "Le programme demandé n'a pas été trouvé",
+      lang: "fr",
+      path: `/programs/${slug}`,
+    });
+  }
+
+  return genMeta({
+    title: program.title.fr,
+    description: program.description.fr,
+    lang: "fr",
+    path: `/programs/${slug}`,
+  });
 }
 
 export default async function ProgramDetailPage({ params }: ProgramDetailPageProps) {

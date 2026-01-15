@@ -3,6 +3,13 @@ import { Separator } from "@/components/ui/separator";
 import { getTranslations } from "@/lib/i18n/server";
 import { teamMembers } from "@/lib/constants/mock-data";
 import { Heart, Eye, Scale, Users } from "lucide-react";
+import { generateMetadata, pageMetadata } from "@/lib/metadata";
+
+export const metadata = generateMetadata({
+  ...pageMetadata.about.fr,
+  lang: "fr",
+  path: "/about",
+});
 
 export default async function AboutPage() {
   const { t } = getTranslations("fr");

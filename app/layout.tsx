@@ -17,8 +17,56 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "A.E.P.V.B – Action pour l'Encadrement et la Promotion des Vulnérables au Burundi",
-  description: "Association pour la défense et la promotion des droits des personnes vulnérables au Burundi",
+  title: {
+    default: "A.E.P.V.B | Action pour l'Encadrement et la Promotion des Vulnérables au Burundi",
+    template: "%s | A.E.P.V.B",
+  },
+  description: "Association pour la défense et la promotion des droits des personnes vulnérables au Burundi. Contribuant à la promotion socio-économique, socio-éducative et de la culture de la paix.",
+  keywords: ["AEPVB", "Association", "Personnes vulnérables", "Burundi", "Handicap", "Droits humains", "Développement social", "Aide humanitaire"],
+  authors: [{ name: "A.E.P.V.B" }],
+  creator: "A.E.P.V.B",
+  publisher: "A.E.P.V.B",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://aepvb.org"),
+  alternates: {
+    canonical: "/",
+    languages: {
+      "fr-FR": "/",
+      "en-US": "/en",
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    alternateLocale: "en_US",
+    siteName: "A.E.P.V.B",
+    title: "A.E.P.V.B | Action pour l'Encadrement et la Promotion des Vulnérables au Burundi",
+    description: "Association pour la défense et la promotion des droits des personnes vulnérables au Burundi",
+    images: [
+      {
+        url: "/favicon_io/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "A.E.P.V.B Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "A.E.P.V.B | Action pour l'Encadrement et la Promotion des Vulnérables au Burundi",
+    description: "Association pour la défense et la promotion des droits des personnes vulnérables au Burundi",
+    images: ["/favicon_io/android-chrome-512x512.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

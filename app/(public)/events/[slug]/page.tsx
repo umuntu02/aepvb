@@ -8,9 +8,31 @@ import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
+import { generateMetadata as genMeta } from "@/lib/metadata";
 
 interface EventDetailPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: EventDetailPageProps) {
+  const { slug } = await params;
+  const event = getEventBySlug(slug);
+  
+  if (!event) {
+    return genMeta({
+      title: "Événement introuvable",
+      description: "L'événement demandé n'a pas été trouvé",
+      lang: "fr",
+      path: `/events/${slug}`,
+    });
+  }
+
+  return genMeta({
+    title: event.title.fr,
+    description: event.description.fr,
+    lang: "fr",
+    path: `/events/${slug}`,
+  });
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {

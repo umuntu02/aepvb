@@ -11,6 +11,13 @@ import Image from "next/image";
 import { getLatestNews, getUpcomingEvents, programs } from "@/lib/constants/mock-data";
 import { getTranslations } from "@/lib/i18n/server";
 import { Calendar, ArrowRight, MapPin } from "lucide-react";
+import { generateMetadata, pageMetadata } from "@/lib/metadata";
+
+export const metadata = generateMetadata({
+  ...pageMetadata.home.fr,
+  lang: "fr",
+  path: "/",
+});
 
 export default async function HomePage() {
   const { t } = getTranslations("fr");

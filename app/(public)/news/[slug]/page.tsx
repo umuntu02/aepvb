@@ -8,9 +8,31 @@ import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, User } from "lucide-react";
+import { generateMetadata as genMeta } from "@/lib/metadata";
 
 interface NewsDetailPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: NewsDetailPageProps) {
+  const { slug } = await params;
+  const article = getNewsBySlug(slug);
+  
+  if (!article) {
+    return genMeta({
+      title: "Article introuvable",
+      description: "L'article demandé n'a pas été trouvé",
+      lang: "fr",
+      path: `/news/${slug}`,
+    });
+  }
+
+  return genMeta({
+    title: article.title.fr,
+    description: article.excerpt.fr,
+    lang: "fr",
+    path: `/news/${slug}`,
+  });
 }
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {

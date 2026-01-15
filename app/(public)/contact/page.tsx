@@ -1,12 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslations } from "@/components/LanguageProvider";
 import { MapPin, Phone, Mail } from "lucide-react";
+
+// Dynamically import Map component to avoid SSR issues with Leaflet
+const Map = dynamic(() => import("@/components/Map").then((mod) => ({ default: mod.Map })), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-video w-full bg-muted flex items-center justify-center rounded-lg">
+      <p className="text-muted-foreground">Chargement de la carte...</p>
+    </div>
+  ),
+});
 
 export default function ContactPage() {
   const { t } = useTranslations();
@@ -50,14 +61,31 @@ export default function ContactPage() {
     }
 
     setIsSubmitting(true);
+    setSubmitStatus("idle");
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Une erreur s'est produite");
+      }
+
       setSubmitStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
-      // In a real app, you would send the form data to your backend
-    }, 2000);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
@@ -226,21 +254,27 @@ export default function ContactPage() {
                 <div>
                   <p className="font-semibold">{t("contact.info.email")}</p>
                   <a
-                    href="mailto:contact@aepvb.bi"
+                    href="mailto:info@aepvb.org"
                     className="text-sm text-primary hover:underline"
                   >
-                    contact@aepvb.bi
+                    info@aepvb.org
                   </a>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Map Placeholder */}
+          {/* Map */}
           <Card>
             <CardContent className="p-0">
-              <div className="aspect-video w-full bg-muted flex items-center justify-center">
-                <p className="text-muted-foreground">Carte interactive à venir</p>
+              <div className="aspect-video w-full overflow-hidden rounded-lg">
+                <Map
+                  latitude={-3.3822}
+                  longitude={29.3644}
+                  zoom={15}
+                  markerText="A.E.P.V.B"
+                  className="h-full w-full"
+                />
               </div>
             </CardContent>
           </Card>
