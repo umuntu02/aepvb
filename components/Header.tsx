@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -16,6 +16,42 @@ export function Header() {
   const { theme, toggleMode, toggleContrast } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      if (
+        mobileMenuOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    // Close menu on route change
+    const handleRouteChange = () => {
+      setMobileMenuOpen(false);
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = "hidden";
+    }
+
+    // Cleanup
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
 
   const navItems = [
     { href: "/", label: t("nav.home") },
@@ -126,10 +162,13 @@ export function Header() {
 
         {/* Mobile Menu Button */}
         <Button
+          ref={buttonRef}
           variant="ghost"
           size="icon"
           className="lg:hidden shrink-0"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={() => {
+            setMobileMenuOpen(!mobileMenuOpen);
+          }}
           aria-label={mobileMenuOpen ? t("a11y.close") : t("a11y.open")}
           aria-expanded={mobileMenuOpen}
         >
@@ -141,10 +180,20 @@ export function Header() {
         </Button>
       </div>
 
+      {/* Backdrop Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <nav
-          className="lg:hidden border-t bg-background"
+          ref={menuRef}
+          className="lg:hidden border-t bg-background relative z-50"
           aria-label={t("a11y.navigation")}
         >
           <div className="container px-4 py-4 space-y-2">
@@ -169,6 +218,7 @@ export function Header() {
                 className="w-full"
                 onClick={() => {
                   setLanguage(language === "fr" ? "en" : "fr");
+                  setMobileMenuOpen(false);
                 }}
               >
                 {t("a11y.language")}: {language === "fr" ? "FR" : "EN"}
@@ -176,15 +226,25 @@ export function Header() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={toggleMode}
+                onClick={() => {
+                  toggleMode();
+                  setMobileMenuOpen(false);
+                }}
               >
                 {t("a11y.theme")}: {theme.mode === "light" ? "Clair" : "Sombre"}
               </Button>
-              <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-md border cursor-pointer">
+              <label
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-md border cursor-pointer"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <Contrast className="h-5 w-5" />
                 <Checkbox
                   checked={theme.contrast === "high"}
-                  onCheckedChange={toggleContrast}
+                  onCheckedChange={(checked) => {
+                    toggleContrast();
+                    // Close menu after a small delay to allow the toggle to complete
+                    setTimeout(() => setMobileMenuOpen(false), 100);
+                  }}
                 />
                 <span>{t("a11y.contrast")}</span>
               </label>

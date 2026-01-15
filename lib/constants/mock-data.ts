@@ -996,7 +996,7 @@ export const teamMembers: TeamMember[] = [
       en: "Legal Representative & President"
     },
     bio: {
-      fr: "Fondateur et président de l'A.E.P.V.B, Nestor BUCUMI œuvre depuis plus de 8 ans pour la promotion des droits des personnes vulnérables au Burundi.",
+      fr: "Co-Fondateur et président de l'A.E.P.V.B, Nestor BUCUMI œuvre depuis plus de 8 ans pour la promotion des droits des personnes vulnérables au Burundi.",
       en: "Founder and president of A.E.P.V.B, Nestor BUCUMI has worked for over 8 years to promote the rights of vulnerable people in Burundi."
     }
   },
@@ -1008,8 +1008,8 @@ export const teamMembers: TeamMember[] = [
       en: "Vice-President"
     },
     bio: {
-      fr: "Jacqueline NIYONKURU coordonne les activités de terrain et assure la liaison avec les communautés locales.",
-      en: "Jacqueline NIYONKURU coordinates field activities and ensures liaison with local communities."
+      fr: "Co-Fondateur et vice-présidente de l'A.E.P.V.B, Jacqueline NIYONKURU coordonne les activités de terrain et assure la liaison avec les communautés locales.",
+      en: "Co-Founder and vice-president of A.E.P.V.B, Jacqueline NIYONKURU coordinates field activities and ensures liaison with local communities."
     }
   },
   {

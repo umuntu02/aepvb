@@ -3,6 +3,9 @@ import { Highlights } from "@/components/sections/Highlights";
 import { CTA } from "@/components/sections/CTA";
 import { Partners } from "@/components/sections/Partners";
 import { Members } from "@/components/sections/Members";
+import { Tools } from "@/components/sections/Tools";
+import { Testimonials } from "@/components/sections/Testimonials";
+import { News } from "@/components/sections/News";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -74,53 +77,7 @@ export default async function HomePage() {
       </section>
 
       {/* Latest News */}
-      <section className="py-4 bg-gradient-to-b from-primary/5 via-muted/30 to-secondary/5" aria-label="Latest News">
-        <div className="container mx-auto px-4">
-          <div className="mb-8 text-center">
-            <h2 className="mb-4 text-3xl font-bold">{t("home.news.title")}</h2>
-            <p className="text-lg text-muted-foreground">{t("home.news.subtitle")}</p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {latestNews.map((news) => (
-              <Card key={news.id} className="overflow-hidden">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={news.image}
-                    alt={news.title.fr}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <CardHeader>
-                  <Badge variant="outline" className="mb-2 w-fit">
-                    {news.category}
-                  </Badge>
-                  <CardTitle className="line-clamp-2">{news.title.fr}</CardTitle>
-                  <CardDescription className="line-clamp-3">
-                    {news.excerpt.fr}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>{new Date(news.date).toLocaleDateString("fr-FR")}</span>
-                  </div>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href={`/news/${news.slug}`}>
-                      {t("common.readMore")} <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <Button asChild size="lg">
-              <Link href="/news">{t("common.viewAll")}</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      <News articles={latestNews} limit={3} />
 
       {/* Upcoming Events */}
       <section className="py-4 bg-gradient-to-b from-background to-primary/5" aria-label="Upcoming Events">
@@ -176,6 +133,11 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Tools Section */}
+      <Tools />
+
+    
 
       {/* Team Members */}
       <Members limit={6} />

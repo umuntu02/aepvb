@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -88,9 +89,10 @@ export default function RootLayout({
             <div className="flex min-h-screen flex-col">
               <Header />
               <main id="main-content" className="flex-1">
-        {children}
+                {children}
               </main>
               <Footer />
+              <ScrollToTop />
             </div>
           </LanguageProvider>
         </ThemeProvider>
