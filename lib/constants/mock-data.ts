@@ -1085,11 +1085,6 @@ export const partners: Partner[] = [
     website: "https://www.unicef.org/burundi"
   },
   {
-    id: "5",
-    name: "OMS (Organisation Mondiale de la Santé)",
-    website: "https://www.who.int"
-  },
-  {
     id: "6",
     name: "Rotary Club",
     website: "https://www.rotary.org"
