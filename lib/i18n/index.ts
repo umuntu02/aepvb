@@ -45,6 +45,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = getStoredLanguage();
     setLanguageState(stored);
+    // Sync to cookie so server components see the same value after hydration
+    document.cookie = `aepvb-language=${stored}; path=/; max-age=31536000; SameSite=Lax`;
     setMounted(true);
   }, []);
 
@@ -52,11 +54,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(lang);
     try {
       localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-      if (typeof document !== "undefined") {
-        document.documentElement.lang = lang;
-      }
+      // Also write to a cookie so server components can read the preference
+      document.cookie = `aepvb-language=${lang}; path=/; max-age=31536000; SameSite=Lax`;
+      document.documentElement.lang = lang;
     } catch (error) {
-      console.error("Error saving language to localStorage:", error);
+      console.error("Error saving language:", error);
     }
   };
 

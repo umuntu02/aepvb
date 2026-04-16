@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getEventBySlug, getRelatedEvents } from "@/lib/db/queries/events";
-import { getTranslations } from "@/lib/i18n/server";
+import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
@@ -27,17 +27,19 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
     });
   }
 
+  const lang = await getServerLanguage();
   return genMeta({
-    title: event.title.fr,
-    description: event.description.fr,
-    lang: "fr",
+    title: event.title[lang],
+    description: event.description[lang],
+    lang,
     path: `/events/${slug}`,
   });
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { slug } = await params;
-  const { t } = getTranslations("fr");
+  const lang = await getServerLanguage();
+  const { t } = getTranslations(lang);
 
   const event = await getEventBySlug(slug);
 
@@ -49,7 +51,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const isPast = new Date(event.date) < new Date();
 
   return (
-    <div className="container mx-auto px-4  max-w-4xl">
+    <div className="container mx-auto px-4 max-w-4xl">
       <Button asChild variant="ghost" className="mb-8">
         <Link href="/events">
           <ArrowLeft className="mr-2 h-4 w-4" /> {t("common.back")}
@@ -61,13 +63,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           <Badge variant="secondary" className="mb-4">
             {event.type}
           </Badge>
-          <h1 className="mb-4 text-4xl font-bold">{event.title.fr}</h1>
+          <h1 className="mb-4 text-4xl font-bold">{event.title[lang]}</h1>
         </div>
 
         <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
           <Image
             src={event.image}
-            alt={event.title.fr}
+            alt={event.title[lang]}
             fill
             className="object-cover"
           />
@@ -75,7 +77,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Détails de l&apos;événement</CardTitle>
+            <CardTitle>{lang === "fr" ? "Détails de l'événement" : "Event Details"}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -84,7 +86,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 <div>
                   <p className="font-semibold">{t("events.date")}</p>
                   <p className="text-muted-foreground">
-                    {new Date(event.date).toLocaleDateString("fr-FR", {
+                    {new Date(event.date).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-US", {
                       weekday: "long",
                       year: "numeric",
                       month: "long",
@@ -104,7 +106,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 <MapPin className="h-5 w-5 text-primary" />
                 <div>
                   <p className="font-semibold">{t("events.location")}</p>
-                  <p className="text-muted-foreground">{event.location.fr}</p>
+                  <p className="text-muted-foreground">{event.location[lang]}</p>
                 </div>
               </div>
             </div>
@@ -112,7 +114,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         </Card>
 
         <div className="prose prose-lg max-w-none mb-12">
-          <p className="text-lg leading-relaxed">{event.description.fr}</p>
+          <p className="text-lg leading-relaxed">{event.description[lang]}</p>
         </div>
 
         {event.registrationRequired && !isPast && (
@@ -134,13 +136,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   <div className="relative h-48 w-full">
                     <Image
                       src={related.image}
-                      alt={related.title.fr}
+                      alt={related.title[lang]}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <CardHeader>
-                    <CardTitle className="line-clamp-2">{related.title.fr}</CardTitle>
+                    <CardTitle className="line-clamp-2">{related.title[lang]}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Button asChild variant="outline" className="w-full">

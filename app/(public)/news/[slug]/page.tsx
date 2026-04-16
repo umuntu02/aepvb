@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getNewsArticleBySlug, getRelatedNews } from "@/lib/db/queries/news";
-import { getTranslations } from "@/lib/i18n/server";
+import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, User } from "lucide-react";
@@ -27,17 +27,19 @@ export async function generateMetadata({ params }: NewsDetailPageProps) {
     });
   }
 
+  const lang = await getServerLanguage();
   return genMeta({
-    title: article.title.fr,
-    description: article.excerpt.fr,
-    lang: "fr",
+    title: article.title[lang],
+    description: article.excerpt[lang],
+    lang,
     path: `/news/${slug}`,
   });
 }
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;
-  const { t } = getTranslations("fr");
+  const lang = await getServerLanguage();
+  const { t } = getTranslations(lang);
 
   const article = await getNewsArticleBySlug(slug);
 
@@ -60,7 +62,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
           <Badge variant="outline" className="mb-4">
             {article.category}
           </Badge>
-          <h1 className="mb-4 text-4xl font-bold">{article.title.fr}</h1>
+          <h1 className="mb-4 text-4xl font-bold">{article.title[lang]}</h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4" />
@@ -68,7 +70,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <span>{new Date(article.date).toLocaleDateString("fr-FR", {
+              <span>{new Date(article.date).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -80,14 +82,14 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
         <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
           <Image
             src={article.image}
-            alt={article.title.fr}
+            alt={article.title[lang]}
             fill
             className="object-cover"
           />
         </div>
 
         <div className="prose prose-lg max-w-none mb-12">
-          <p className="text-lg leading-relaxed whitespace-pre-line">{article.content.fr}</p>
+          <p className="text-lg leading-relaxed whitespace-pre-line">{article.content[lang]}</p>
         </div>
 
         <Separator className="my-12" />
@@ -101,13 +103,13 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
                   <div className="relative h-48 w-full">
                     <Image
                       src={related.image}
-                      alt={related.title.fr}
+                      alt={related.title[lang]}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <CardHeader>
-                    <CardTitle className="line-clamp-2">{related.title.fr}</CardTitle>
+                    <CardTitle className="line-clamp-2">{related.title[lang]}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Button asChild variant="outline" className="w-full">

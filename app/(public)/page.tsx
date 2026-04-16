@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
-import { getTranslations } from "@/lib/i18n/server";
+import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
 import { Calendar, ArrowRight, MapPin } from "lucide-react";
 import { generateMetadata, pageMetadata } from "@/lib/metadata";
 import { getAllPrograms } from "@/lib/db/queries/programs";
@@ -26,7 +26,8 @@ export const metadata = generateMetadata({
 });
 
 export default async function HomePage() {
-  const { t } = getTranslations("fr");
+  const lang = await getServerLanguage();
+  const { t } = getTranslations(lang);
   const [latestNews, upcomingEvents, allPrograms, teamMembersList, partnersList] =
     await Promise.all([
       getLatestNews(3),
@@ -55,7 +56,7 @@ export default async function HomePage() {
                 <div className="relative h-48 w-full">
                   <Image
                     src={program.image}
-                    alt={program.title.fr}
+                    alt={program.title[lang]}
                     fill
                     className="object-cover"
                   />
@@ -64,8 +65,8 @@ export default async function HomePage() {
                   <Badge variant="secondary" className="mb-2 w-fit">
                     {t(`programs.filter.${program.category}`)}
                   </Badge>
-                  <CardTitle>{program.title.fr}</CardTitle>
-                  <CardDescription>{program.description.fr}</CardDescription>
+                  <CardTitle>{program.title[lang]}</CardTitle>
+                  <CardDescription>{program.description[lang]}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild variant="outline" className="w-full">
@@ -101,7 +102,7 @@ export default async function HomePage() {
                 <div className="relative h-48 w-full">
                   <Image
                     src={event.image}
-                    alt={event.title.fr}
+                    alt={event.title[lang]}
                     fill
                     className="object-cover"
                   />
@@ -110,20 +111,20 @@ export default async function HomePage() {
                   <Badge variant="secondary" className="mb-2 w-fit">
                     {event.type}
                   </Badge>
-                  <CardTitle>{event.title.fr}</CardTitle>
+                  <CardTitle>{event.title[lang]}</CardTitle>
                   <CardDescription className="line-clamp-2">
-                    {event.description.fr}
+                    {event.description[lang]}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="mb-4 space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span>{new Date(event.date).toLocaleDateString("fr-FR")}</span>
+                      <span>{new Date(event.date).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-US")}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <MapPin className="h-4 w-4" />
-                      <span>{event.location.fr}</span>
+                      <span>{event.location[lang]}</span>
                     </div>
                   </div>
                   <Button asChild variant="outline" className="w-full">

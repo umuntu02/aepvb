@@ -2,11 +2,8 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  getProgramBySlug,
-  getRelatedPrograms,
-} from "@/lib/db/queries/programs";
-import { getTranslations } from "@/lib/i18n/server";
+import { getProgramBySlug, getRelatedPrograms } from "@/lib/db/queries/programs";
+import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
@@ -29,17 +26,19 @@ export async function generateMetadata({ params }: ProgramDetailPageProps) {
     });
   }
 
+  const lang = await getServerLanguage();
   return genMeta({
-    title: program.title.fr,
-    description: program.description.fr,
-    lang: "fr",
+    title: program.title[lang],
+    description: program.description[lang],
+    lang,
     path: `/programs/${slug}`,
   });
 }
 
 export default async function ProgramDetailPage({ params }: ProgramDetailPageProps) {
   const { slug } = await params;
-  const { t } = getTranslations("fr");
+  const lang = await getServerLanguage();
+  const { t } = getTranslations(lang);
 
   const program = await getProgramBySlug(slug);
 
@@ -62,20 +61,20 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
           <Badge variant="secondary" className="mb-4">
             {t(`programs.filter.${program.category}`)}
           </Badge>
-          <h1 className="mb-4 text-4xl font-bold">{program.title.fr}</h1>
+          <h1 className="mb-4 text-4xl font-bold">{program.title[lang]}</h1>
         </div>
 
         <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
           <Image
             src={program.image}
-            alt={program.title.fr}
+            alt={program.title[lang]}
             fill
             className="object-cover"
           />
         </div>
 
         <div className="prose prose-lg max-w-none mb-12">
-          <p className="text-lg leading-relaxed">{program.fullDescription.fr}</p>
+          <p className="text-lg leading-relaxed">{program.fullDescription[lang]}</p>
         </div>
 
         {related.length > 0 && (
@@ -87,13 +86,13 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                   <div className="relative h-48 w-full">
                     <Image
                       src={rel.image}
-                      alt={rel.title.fr}
+                      alt={rel.title[lang]}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <CardHeader>
-                    <CardTitle className="line-clamp-2">{rel.title.fr}</CardTitle>
+                    <CardTitle className="line-clamp-2">{rel.title[lang]}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Button asChild variant="outline" className="w-full">
