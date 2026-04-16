@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { getEventBySlug, events } from "@/lib/constants/mock-data";
+import { getEventBySlug, getRelatedEvents } from "@/lib/db/queries/events";
 import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,8 +16,8 @@ interface EventDetailPageProps {
 
 export async function generateMetadata({ params }: EventDetailPageProps) {
   const { slug } = await params;
-  const event = getEventBySlug(slug);
-  
+  const event = await getEventBySlug(slug);
+
   if (!event) {
     return genMeta({
       title: "Événement introuvable",
@@ -37,18 +37,15 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { slug } = await params;
-  const event = getEventBySlug(slug);
   const { t } = getTranslations("fr");
+
+  const event = await getEventBySlug(slug);
 
   if (!event) {
     notFound();
   }
 
-  // Get related events (same type, different event)
-  const relatedEvents = events
-    .filter((e) => e.type === event.type && e.id !== event.id)
-    .slice(0, 3);
-
+  const relatedEvents = await getRelatedEvents(event.type, slug, 3);
   const isPast = new Date(event.date) < new Date();
 
   return (
@@ -78,7 +75,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Détails de l'événement</CardTitle>
+            <CardTitle>Détails de l&apos;événement</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

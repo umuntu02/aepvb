@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getTranslations } from "@/lib/i18n/server";
-import { teamMembers } from "@/lib/constants/mock-data";
+import { getAllTeamMembers } from "@/lib/db/queries/team";
 import { Heart, Eye, Scale, Users } from "lucide-react";
 import { generateMetadata, pageMetadata } from "@/lib/metadata";
 
@@ -13,6 +13,7 @@ export const metadata = generateMetadata({
 
 export default async function AboutPage() {
   const { t } = getTranslations("fr");
+  const teamMembers = await getAllTeamMembers();
 
   const values = [
     {

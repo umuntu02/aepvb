@@ -2,7 +2,10 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getProgramBySlug, programs } from "@/lib/constants/mock-data";
+import {
+  getProgramBySlug,
+  getRelatedPrograms,
+} from "@/lib/db/queries/programs";
 import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,8 +18,8 @@ interface ProgramDetailPageProps {
 
 export async function generateMetadata({ params }: ProgramDetailPageProps) {
   const { slug } = await params;
-  const program = getProgramBySlug(slug);
-  
+  const program = await getProgramBySlug(slug);
+
   if (!program) {
     return genMeta({
       title: "Programme introuvable",
@@ -36,17 +39,15 @@ export async function generateMetadata({ params }: ProgramDetailPageProps) {
 
 export default async function ProgramDetailPage({ params }: ProgramDetailPageProps) {
   const { slug } = await params;
-  const program = getProgramBySlug(slug);
   const { t } = getTranslations("fr");
+
+  const program = await getProgramBySlug(slug);
 
   if (!program) {
     notFound();
   }
 
-  // Get related programs (same category, different program)
-  const relatedPrograms = programs
-    .filter((p) => p.category === program.category && p.id !== program.id)
-    .slice(0, 3);
+  const related = await getRelatedPrograms(program.category, slug, 3);
 
   return (
     <div className="container mx-auto px-4 ">
@@ -77,26 +78,26 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
           <p className="text-lg leading-relaxed">{program.fullDescription.fr}</p>
         </div>
 
-        {relatedPrograms.length > 0 && (
+        {related.length > 0 && (
           <section className="mt-16" aria-label="Related Programs">
             <h2 className="mb-8 text-2xl font-bold">{t("programs.detail.related")}</h2>
             <div className="grid gap-6 md:grid-cols-3">
-              {relatedPrograms.map((related) => (
-                <Card key={related.id} className="overflow-hidden">
+              {related.map((rel) => (
+                <Card key={rel.id} className="overflow-hidden">
                   <div className="relative h-48 w-full">
                     <Image
-                      src={related.image}
-                      alt={related.title.fr}
+                      src={rel.image}
+                      alt={rel.title.fr}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <CardHeader>
-                    <CardTitle className="line-clamp-2">{related.title.fr}</CardTitle>
+                    <CardTitle className="line-clamp-2">{rel.title.fr}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Button asChild variant="outline" className="w-full">
-                      <Link href={`/programs/${related.slug}`}>
+                      <Link href={`/programs/${rel.slug}`}>
                         {t("common.learnMore")}
                       </Link>
                     </Button>

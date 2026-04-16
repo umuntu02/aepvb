@@ -1,4 +1,10 @@
-export type ProgramCategory = 
+// DEPRECATED: Content data in this file has been migrated to PostgreSQL via lib/db/schema.ts.
+// Public pages now read from the database using lib/db/queries/*.ts.
+// This file is kept as the source of TypeScript interface definitions (Program, NewsArticle,
+// Event, GalleryImage, TeamMember, Partner) and as a fallback reference.
+// Do NOT add new content here — update the database instead.
+
+export type ProgramCategory =
   | "education" 
   | "health" 
   | "economic" 

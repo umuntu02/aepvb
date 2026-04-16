@@ -4,18 +4,19 @@ import { useTranslations } from "@/components/LanguageProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { teamMembers, type TeamMember } from "@/lib/constants/mock-data";
+import type { TeamMember } from "@/lib/constants/mock-data";
 import { Users, ArrowRight, UserCircle, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MembersProps {
+  members: TeamMember[];
   limit?: number;
   className?: string;
 }
 
-export function Members({ limit = 6, className }: MembersProps) {
+export function Members({ members, limit = 6, className }: MembersProps) {
   const { t, language } = useTranslations();
-  const displayedMembers = teamMembers.slice(0, limit);
+  const displayedMembers = members.slice(0, limit);
 
   return (
     <section
@@ -90,7 +91,7 @@ export function Members({ limit = 6, className }: MembersProps) {
         </div>
 
         {/* View All Button */}
-        {teamMembers.length > limit && (
+        {members.length > limit && (
           <div className="mt-12 text-center">
             <Button
               asChild

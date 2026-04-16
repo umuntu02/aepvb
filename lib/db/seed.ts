@@ -1,64 +1,230 @@
 import * as dotenv from "dotenv";
+// Must run before any module that reads DATABASE_URL is imported
 dotenv.config({ path: ".env.local" });
 
-import { db } from "./index";
-import { news } from "./schema";
-
-const sampleNews = [
-  {
-    title: "Annual Technology Summit 2024",
-    content: "Join us for our annual technology summit featuring keynote speakers from leading tech companies. This year's theme focuses on AI innovation and sustainable technology solutions. The event will include workshops, networking sessions, and product demonstrations.",
-    author: "Sarah Johnson",
-    category: "Technology",
-  },
-  {
-    title: "Community Health Fair",
-    content: "Our organization is hosting a free community health fair this Saturday. Services include health screenings, vaccinations, nutrition counseling, and fitness assessments. All community members are welcome to attend.",
-    author: "Dr. Michael Chen",
-    category: "Health",
-  },
-  {
-    title: "Environmental Conservation Workshop",
-    content: "Learn about sustainable practices and environmental conservation in our upcoming workshop. Topics include renewable energy, waste reduction, and local ecosystem preservation. Registration is required.",
-    author: "Emily Rodriguez",
-    category: "Environment",
-  },
-  {
-    title: "Youth Leadership Program Launch",
-    content: "We're excited to announce the launch of our new youth leadership program. This initiative aims to empower young people through mentorship, skill-building workshops, and community service opportunities.",
-    author: "James Wilson",
-    category: "Education",
-  },
-  {
-    title: "Cultural Festival 2024",
-    content: "Celebrate diversity at our annual cultural festival featuring music, dance, food, and art from around the world. This family-friendly event promotes cultural understanding and community unity.",
-    author: "Aisha Patel",
-    category: "Culture",
-  },
-  {
-    title: "Business Networking Breakfast",
-    content: "Connect with local business leaders and entrepreneurs at our monthly networking breakfast. This event provides opportunities for collaboration, partnership, and professional growth.",
-    author: "Robert Thompson",
-    category: "Business",
-  },
-];
+// Static imports that don't need DATABASE_URL are fine here
+import { sql, isNull } from "drizzle-orm";
+import {
+  programs as programsData,
+  newsArticles,
+  events as eventsData,
+  galleryImages,
+  teamMembers as teamMembersData,
+  partners as partnersData,
+} from "../constants/mock-data";
 
 async function seed() {
+  // Dynamic import runs after dotenv has loaded env vars into process.env
+  const { db } = await import("./index.js");
+  const { news, programs, events, gallery, teamMembers, partners } =
+    await import("./schema.js");
+
   console.log("Seeding database...");
 
-  try {
-    // Clear existing data
-    await db.delete(news);
+  // Remove legacy seed data (English placeholder records with no slug)
+  await db.delete(news).where(isNull(news.slug));
 
-    // Insert sample news
-    await db.insert(news).values(sampleNews);
+  // ── Programs ─────────────────────────────────────────────────────────────
+  await db
+    .insert(programs)
+    .values(
+      programsData.map((p) => ({
+        slug: p.slug,
+        titleFr: p.title.fr,
+        titleEn: p.title.en,
+        descriptionFr: p.description.fr,
+        descriptionEn: p.description.en,
+        fullDescriptionFr: p.fullDescription.fr,
+        fullDescriptionEn: p.fullDescription.en,
+        category: p.category,
+        image: p.image,
+        startDate: p.startDate,
+        status: p.status,
+        published: true,
+      }))
+    )
+    .onConflictDoUpdate({
+      target: programs.slug,
+      set: {
+        titleFr: sql`excluded.title_fr`,
+        titleEn: sql`excluded.title_en`,
+        descriptionFr: sql`excluded.description_fr`,
+        descriptionEn: sql`excluded.description_en`,
+        fullDescriptionFr: sql`excluded.full_description_fr`,
+        fullDescriptionEn: sql`excluded.full_description_en`,
+        category: sql`excluded.category`,
+        image: sql`excluded.image`,
+        startDate: sql`excluded.start_date`,
+        status: sql`excluded.status`,
+        updatedAt: sql`now()`,
+      },
+    });
 
-    console.log("Database seeded successfully!");
-    process.exit(0);
-  } catch (error) {
-    console.error("Error seeding database:", error);
-    process.exit(1);
-  }
+  // ── Events ────────────────────────────────────────────────────────────────
+  await db
+    .insert(events)
+    .values(
+      eventsData.map((e) => ({
+        slug: e.slug,
+        titleFr: e.title.fr,
+        titleEn: e.title.en,
+        descriptionFr: e.description.fr,
+        descriptionEn: e.description.en,
+        locationFr: e.location.fr,
+        locationEn: e.location.en,
+        date: e.date,
+        time: e.time,
+        type: e.type,
+        image: e.image ?? null,
+        registrationRequired: e.registrationRequired,
+        published: true,
+      }))
+    )
+    .onConflictDoUpdate({
+      target: events.slug,
+      set: {
+        titleFr: sql`excluded.title_fr`,
+        titleEn: sql`excluded.title_en`,
+        descriptionFr: sql`excluded.description_fr`,
+        descriptionEn: sql`excluded.description_en`,
+        locationFr: sql`excluded.location_fr`,
+        locationEn: sql`excluded.location_en`,
+        date: sql`excluded.date`,
+        time: sql`excluded.time`,
+        type: sql`excluded.type`,
+        image: sql`excluded.image`,
+        registrationRequired: sql`excluded.registration_required`,
+        updatedAt: sql`now()`,
+      },
+    });
+
+  // ── Gallery ───────────────────────────────────────────────────────────────
+  await db
+    .insert(gallery)
+    .values(
+      galleryImages.map((img, i) => ({
+        src: img.src,
+        altFr: img.alt.fr,
+        altEn: img.alt.en,
+        category: img.category,
+        date: img.date ?? null,
+        ordinal: i,
+      }))
+    )
+    .onConflictDoUpdate({
+      target: gallery.src,
+      set: {
+        altFr: sql`excluded.alt_fr`,
+        altEn: sql`excluded.alt_en`,
+        category: sql`excluded.category`,
+        date: sql`excluded.date`,
+        ordinal: sql`excluded.ordinal`,
+        updatedAt: sql`now()`,
+      },
+    });
+
+  // ── Team Members ──────────────────────────────────────────────────────────
+  await db
+    .insert(teamMembers)
+    .values(
+      teamMembersData.map((m, i) => ({
+        name: m.name,
+        roleFr: m.role.fr,
+        roleEn: m.role.en,
+        bioFr: m.bio.fr,
+        bioEn: m.bio.en,
+        photo: m.image ?? null,
+        ordinal: i,
+      }))
+    )
+    .onConflictDoUpdate({
+      target: teamMembers.name,
+      set: {
+        roleFr: sql`excluded.role_fr`,
+        roleEn: sql`excluded.role_en`,
+        bioFr: sql`excluded.bio_fr`,
+        bioEn: sql`excluded.bio_en`,
+        photo: sql`excluded.photo`,
+        ordinal: sql`excluded.ordinal`,
+        updatedAt: sql`now()`,
+      },
+    });
+
+  // ── Partners ──────────────────────────────────────────────────────────────
+  await db
+    .insert(partners)
+    .values(
+      partnersData.map((p, i) => ({
+        name: p.name,
+        logo: p.logo ?? null,
+        website: p.website ?? null,
+        ordinal: i,
+      }))
+    )
+    .onConflictDoUpdate({
+      target: partners.name,
+      set: {
+        logo: sql`excluded.logo`,
+        website: sql`excluded.website`,
+        ordinal: sql`excluded.ordinal`,
+        updatedAt: sql`now()`,
+      },
+    });
+
+  // ── News ──────────────────────────────────────────────────────────────────
+  await db
+    .insert(news)
+    .values(
+      newsArticles.map((a) => ({
+        // Legacy non-null columns set to French values
+        title: a.title.fr,
+        content: a.content.fr,
+        author: a.author,
+        category: a.category,
+        // Bilingual columns
+        slug: a.slug,
+        titleFr: a.title.fr,
+        titleEn: a.title.en,
+        contentFr: a.content.fr,
+        contentEn: a.content.en,
+        excerptFr: a.excerpt.fr,
+        excerptEn: a.excerpt.en,
+        image: a.image,
+        date: a.date,
+        featured: a.featured,
+        published: true,
+      }))
+    )
+    .onConflictDoUpdate({
+      target: news.slug,
+      set: {
+        title: sql`excluded.title`,
+        content: sql`excluded.content`,
+        author: sql`excluded.author`,
+        category: sql`excluded.category`,
+        titleFr: sql`excluded.title_fr`,
+        titleEn: sql`excluded.title_en`,
+        contentFr: sql`excluded.content_fr`,
+        contentEn: sql`excluded.content_en`,
+        excerptFr: sql`excluded.excerpt_fr`,
+        excerptEn: sql`excluded.excerpt_en`,
+        image: sql`excluded.image`,
+        date: sql`excluded.date`,
+        featured: sql`excluded.featured`,
+        updatedAt: sql`now()`,
+      },
+    });
+
+  console.log(
+    `Seeded: ${programsData.length} programs, ${eventsData.length} events, ` +
+      `${galleryImages.length} gallery items, ${teamMembersData.length} team members, ` +
+      `${partnersData.length} partners, ${newsArticles.length} news articles`
+  );
+
+  process.exit(0);
 }
 
-seed();
+seed().catch((err) => {
+  console.error("Seed failed:", err);
+  process.exit(1);
+});

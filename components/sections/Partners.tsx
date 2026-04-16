@@ -1,15 +1,16 @@
 "use client";
 
 import { useTranslations } from "@/components/LanguageProvider";
-import { partners } from "@/lib/constants/mock-data";
+import type { Partner } from "@/lib/constants/mock-data";
 import { ExternalLink, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PartnersProps {
+  partners: Partner[];
   className?: string;
 }
 
-export function Partners({ className }: PartnersProps) {
+export function Partners({ partners, className }: PartnersProps) {
   const { t, language } = useTranslations();
 
   return (

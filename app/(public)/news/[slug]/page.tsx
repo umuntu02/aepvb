@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { getNewsBySlug, newsArticles } from "@/lib/constants/mock-data";
+import { getNewsArticleBySlug, getRelatedNews } from "@/lib/db/queries/news";
 import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,8 +16,8 @@ interface NewsDetailPageProps {
 
 export async function generateMetadata({ params }: NewsDetailPageProps) {
   const { slug } = await params;
-  const article = getNewsBySlug(slug);
-  
+  const article = await getNewsArticleBySlug(slug);
+
   if (!article) {
     return genMeta({
       title: "Article introuvable",
@@ -37,17 +37,15 @@ export async function generateMetadata({ params }: NewsDetailPageProps) {
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;
-  const article = getNewsBySlug(slug);
   const { t } = getTranslations("fr");
+
+  const article = await getNewsArticleBySlug(slug);
 
   if (!article) {
     notFound();
   }
 
-  // Get related articles (same category, different article)
-  const relatedArticles = newsArticles
-    .filter((a) => a.category === article.category && a.id !== article.id)
-    .slice(0, 3);
+  const relatedArticles = await getRelatedNews(article.category, slug, 3);
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl">

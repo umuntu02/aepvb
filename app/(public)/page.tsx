@@ -4,17 +4,20 @@ import { CTA } from "@/components/sections/CTA";
 import { Partners } from "@/components/sections/Partners";
 import { Members } from "@/components/sections/Members";
 import { Tools } from "@/components/sections/Tools";
-import { Testimonials } from "@/components/sections/Testimonials";
 import { News } from "@/components/sections/News";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
-import { getLatestNews, getUpcomingEvents, programs } from "@/lib/constants/mock-data";
 import { getTranslations } from "@/lib/i18n/server";
 import { Calendar, ArrowRight, MapPin } from "lucide-react";
 import { generateMetadata, pageMetadata } from "@/lib/metadata";
+import { getAllPrograms } from "@/lib/db/queries/programs";
+import { getUpcomingEvents } from "@/lib/db/queries/events";
+import { getLatestNews } from "@/lib/db/queries/news";
+import { getAllTeamMembers } from "@/lib/db/queries/team";
+import { getAllPartners } from "@/lib/db/queries/partners";
 
 export const metadata = generateMetadata({
   ...pageMetadata.home.fr,
@@ -24,9 +27,15 @@ export const metadata = generateMetadata({
 
 export default async function HomePage() {
   const { t } = getTranslations("fr");
-  const latestNews = getLatestNews(3);
-  const upcomingEvents = getUpcomingEvents().slice(0, 3);
-  const featuredPrograms = programs.slice(0, 3);
+  const [latestNews, upcomingEvents, allPrograms, teamMembersList, partnersList] =
+    await Promise.all([
+      getLatestNews(3),
+      getUpcomingEvents(3),
+      getAllPrograms(),
+      getAllTeamMembers(),
+      getAllPartners(),
+    ]);
+  const featuredPrograms = allPrograms.slice(0, 3);
 
   return (
     <>
@@ -137,10 +146,8 @@ export default async function HomePage() {
       {/* Tools Section */}
       <Tools />
 
-    
-
       {/* Team Members */}
-      <Members limit={6} />
+      <Members members={teamMembersList} limit={6} />
 
       {/* Donate CTA */}
       <CTA
@@ -152,7 +159,7 @@ export default async function HomePage() {
       />
 
       {/* Partners */}
-      <Partners />
+      <Partners partners={partnersList} />
     </>
   );
 }
