@@ -1,208 +1,175 @@
 # A.E.P.V.B Website
 
-Website for Action pour l'Encadrement et la Promotion des Vulnérables au Burundi (A.E.P.V.B) - Association for the Support and Promotion of Vulnerable People in Burundi.
+Website for **Action pour l'Encadrement et la Promotion des Vulnérables au Burundi (A.E.P.V.B)** — Association for the Support and Promotion of Vulnerable People in Burundi.
 
 ## Features
 
-- 🌍 **Bilingual** - French (FR) and English (EN) language support
-- 🎨 **Multiple Themes** - Light, Dark, and High-Contrast modes
-- ♿ **Accessible** - WCAG compliant with keyboard navigation, ARIA labels, and semantic HTML
-- 📱 **Responsive** - Mobile-first design that works on all devices
-- 🚀 **Modern Stack** - Next.js 16, TypeScript, Tailwind CSS, shadcn/ui
+- **Bilingual** — French (FR, default) and English (EN) with localStorage persistence
+- **Multiple Themes** — Light, Dark, and High-Contrast modes with localStorage persistence
+- **Accessible** — WCAG compliant with keyboard navigation, ARIA labels, skip links, and semantic HTML
+- **Responsive** — Mobile-first design
+- **Contact form** — Functional email delivery via Resend (requires `RESEND_API_KEY`)
+- **Interactive map** — Leaflet-powered location map
 
 ## Tech Stack
 
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
+- **Framework**: Next.js 16.1.1 (App Router)
+- **Language**: TypeScript 5
 - **Styling**: Tailwind CSS v4
 - **UI Components**: shadcn/ui (Radix UI)
 - **Icons**: Lucide React
+- **State**: Zustand + custom React context (theme, language)
+- **Map**: Leaflet + react-leaflet
+- **Database**: PostgreSQL via Drizzle ORM + postgres driver
+- **Email**: Resend
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or yarn or pnpm
+- Node.js 18+
+- npm, yarn, or pnpm
+- PostgreSQL database (for DB features)
+- Resend account (for contact form)
 
 ### Installation
 
-1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd aepvb
-```
-
-2. Install dependencies:
-```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
 ```
 
-3. Run the development server:
+### Environment Variables
+
+Create a `.env.local` file at the project root:
+
+```env
+# Required for contact form
+RESEND_API_KEY=re_...
+
+# Required for database features
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+
+# Optional — defaults to https://aepvb.org
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+### Run Development Server
+
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+# → http://localhost:3000
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+## Database Setup
+
+```bash
+# Push schema to database (development)
+npm run db:push
+
+# Generate migration files
+npm run db:generate
+
+# Run migrations
+npm run db:migrate
+
+# Seed with sample data
+npm run db:seed
+
+# Open Drizzle Studio (DB browser)
+npm run db:studio
+```
 
 ## Project Structure
 
 ```
 aepvb/
 ├── app/
-│   ├── (public)/          # Public routes
+│   ├── (public)/          # All public-facing page routes
 │   │   ├── page.tsx       # Home page
 │   │   ├── about/
 │   │   ├── programs/
+│   │   ├── programs/[slug]/
 │   │   ├── news/
+│   │   ├── news/[slug]/
 │   │   ├── events/
+│   │   ├── events/[slug]/
 │   │   ├── gallery/
 │   │   ├── donate/
 │   │   └── contact/
-│   ├── layout.tsx         # Root layout
-│   └── globals.css        # Global styles
+│   ├── api/
+│   │   └── contact/       # POST /api/contact — sends email via Resend
+│   ├── layout.tsx         # Root layout (fonts, providers, Header, Footer)
+│   └── globals.css        # Tailwind base styles
 ├── components/
-│   ├── ui/                # shadcn/ui components
-│   ├── sections/          # Page sections (Hero, CTA, etc.)
-│   ├── Header.tsx         # Site header
+│   ├── ui/                # shadcn/ui primitives (managed by shadcn CLI)
+│   ├── sections/          # Composite page sections (Hero, HeroCarousel,
+│   │                      #   Highlights, Members, News, Partners,
+│   │                      #   Testimonials, CTA, Tools)
+│   ├── Header.tsx         # Site header with language + theme switchers
 │   ├── Footer.tsx         # Site footer
-│   ├── ThemeProvider.tsx  # Theme context
-│   └── LanguageProvider.tsx # i18n context
+│   ├── ThemeProvider.tsx  # Re-exports from lib/theme/theme.ts
+│   ├── LanguageProvider.tsx # FR/EN context + useTranslations hook
+│   ├── Flag.tsx           # Flag icon (used in language switcher)
+│   ├── Map.tsx            # Leaflet interactive map
+│   └── ScrollToTop.tsx    # Scroll-to-top button
 ├── lib/
-│   ├── i18n/              # Translation files (fr.ts, en.ts)
-│   ├── theme/             # Theme utilities
-│   ├── constants/         # Mock data
-│   └── utils.ts           # Utility functions
+│   ├── i18n/              # Translation files (fr.ts, en.ts), types, server helper
+│   ├── theme/             # Theme context (light/dark/high-contrast)
+│   ├── constants/         # Mock data: programs, news, events, gallery, team, partners
+│   ├── db/                # Drizzle ORM: index.ts, schema.ts, seed.ts
+│   ├── metadata.ts        # Next.js metadata helpers
+│   └── utils.ts           # cn() utility and shared helpers
 ├── styles/
-│   └── tokens.css         # Design tokens
-└── public/
-    └── img/               # Images
-```
-
-## Features Guide
-
-### Switching Language
-
-The website supports French and English. To switch languages:
-
-1. **In Header**: Click the language button (FR/EN) in the top navigation
-2. **On Mobile**: Open the menu and use the language switcher button
-3. **Persistence**: Your language preference is saved in localStorage
-
-The default language is French.
-
-### Changing Theme
-
-The website supports multiple theme modes:
-
-1. **Light/Dark Mode**: 
-   - Click the sun/moon icon in the header to toggle between light and dark modes
-
-2. **High-Contrast Mode**:
-   - Toggle the high-contrast checkbox in the header
-   - Works with both light and dark modes
-   - Provides enhanced contrast for better accessibility
-
-3. **Persistence**: Your theme preferences are saved in localStorage
-
-### Keyboard Navigation
-
-All interactive elements are keyboard accessible:
-
-- **Tab**: Navigate through interactive elements
-- **Enter/Space**: Activate buttons and links
-- **Arrow Keys**: Navigate in galleries and carousels
-- **Escape**: Close modals and dialogs
-- **Skip Link**: Press Tab on page load to skip to main content
-
-### Accessibility Features
-
-- ✅ Semantic HTML structure
-- ✅ ARIA labels and roles
-- ✅ Keyboard navigation
-- ✅ Focus visible indicators
-- ✅ High contrast mode
-- ✅ Skip to content link
-- ✅ Alt text for all images
-- ✅ Form validation with error messages
-- ✅ Reduced motion support
-
-## Development
-
-### Build for Production
-
-```bash
-npm run build
-# or
-yarn build
-# or
-pnpm build
-```
-
-### Start Production Server
-
-```bash
-npm start
-# or
-yarn start
-# or
-pnpm start
-```
-
-### Linting
-
-```bash
-npm run lint
-# or
-yarn lint
-# or
-pnpm lint
+│   └── tokens.css         # CSS design tokens
+├── public/
+│   ├── img/               # Site images
+│   └── favicon_io/        # Favicon assets
+├── drizzle.config.ts      # Drizzle ORM configuration (PostgreSQL)
+└── components.json        # shadcn/ui configuration
 ```
 
 ## Pages
 
-- **Home** (`/`) - Landing page with hero, mission, programs preview, news, events
-- **About** (`/about`) - Mission, vision, values, team, organizational structure
-- **Programs** (`/programs`) - List of all programs with filtering
-- **Program Detail** (`/programs/[slug]`) - Individual program details
-- **News** (`/news`) - News articles list with search and filtering
-- **News Detail** (`/news/[slug]`) - Individual news article
-- **Events** (`/events`) - Upcoming and past events
-- **Event Detail** (`/events/[slug]`) - Individual event details
-- **Gallery** (`/gallery`) - Photo gallery with lightbox
-- **Donate** (`/donate`) - Donation form (UI only, no payment processing)
-- **Contact** (`/contact`) - Contact form and information
+| Route | Description |
+|---|---|
+| `/` | Home — hero carousel, highlights, news, partners, CTA |
+| `/about` | Mission, vision, values, team, org structure |
+| `/programs` | Program list with category filtering |
+| `/programs/[slug]` | Individual program detail |
+| `/news` | News articles with search and filtering |
+| `/news/[slug]` | Individual news article |
+| `/events` | Upcoming and past events |
+| `/events/[slug]` | Individual event detail |
+| `/gallery` | Photo gallery with lightbox |
+| `/donate` | Donation form (UI only — no payment processing) |
+| `/contact` | Contact form (functional — sends email via Resend) |
 
 ## Content Management
 
-Currently, all content is managed through mock data in:
-- `lib/constants/mock-data.ts` - Programs, news, events, gallery, team, partners
+Most content is managed through mock data in `lib/constants/mock-data.ts` — programs, news, events, gallery items, team members, and partners. The database currently only backs the `news` table.
 
-To add or modify content, edit the respective arrays in this file.
+To add or modify content: edit the arrays in `lib/constants/mock-data.ts`.
 
-## Notes
+## Accessibility
 
-- This is a **front-end only** implementation
-- No backend API or database
-- Forms are UI-only (no actual submission)
-- Donation page is UI-only (no payment processing)
-- All images are stored in `public/img/`
+- Semantic HTML structure
+- ARIA labels and roles
+- Full keyboard navigation (Tab, Enter/Space, Arrow Keys, Escape)
+- Skip to content link
+- Focus visible indicators
+- High-contrast mode
+- Alt text on all images
+- Form validation with error messages
+- Reduced motion support
 
 ## Browser Support
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+Chrome, Firefox, Safari, and Edge (latest versions).
 
 ## License
 
-© 2024 A.E.P.V.B – Burundi. All rights reserved.## ContactFor questions or support, please visit the contact page or email: contact@aepvb.bi
+© 2024 A.E.P.V.B – Burundi. All rights reserved.
+
+**Contact**: contact@aepvb.bi | +257 61 098 263
