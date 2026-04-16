@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getProgramBySlug, getRelatedPrograms } from "@/lib/db/queries/programs";
-import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
+import { getTranslations, getCurrentLang } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
@@ -11,9 +11,10 @@ import { generateMetadata as genMeta } from "@/lib/metadata";
 
 interface ProgramDetailPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }
 
-export async function generateMetadata({ params }: ProgramDetailPageProps) {
+export async function generateMetadata({ params, searchParams }: ProgramDetailPageProps) {
   const { slug } = await params;
   const program = await getProgramBySlug(slug);
 
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: ProgramDetailPageProps) {
     });
   }
 
-  const lang = await getServerLanguage();
+  const lang = getCurrentLang(await searchParams);
   return genMeta({
     title: program.title[lang],
     description: program.description[lang],
@@ -35,9 +36,9 @@ export async function generateMetadata({ params }: ProgramDetailPageProps) {
   });
 }
 
-export default async function ProgramDetailPage({ params }: ProgramDetailPageProps) {
+export default async function ProgramDetailPage({ params, searchParams }: ProgramDetailPageProps) {
   const { slug } = await params;
-  const lang = await getServerLanguage();
+  const lang = getCurrentLang(await searchParams);
   const { t } = getTranslations(lang);
 
   const program = await getProgramBySlug(slug);

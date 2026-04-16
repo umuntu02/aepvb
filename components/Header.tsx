@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Menu, X, Sun, Moon, Contrast } from "lucide-react";
 import { useTranslations } from "@/components/LanguageProvider";
 import { useTheme } from "@/components/ThemeProvider";
@@ -16,8 +16,21 @@ export function Header() {
   const { theme, toggleMode, toggleContrast } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // DECISION: Call both setLanguage (instant context update for UI strings)
+  // and router.push (triggers server re-render so DB content switches too).
+  // Preserves existing search params to avoid clobbering other URL state.
+  const handleLanguageSwitch = () => {
+    const newLang = language === "fr" ? "en" : "fr";
+    setLanguage(newLang);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("lang", newLang);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -128,7 +141,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+              onClick={handleLanguageSwitch}
               aria-label={t("a11y.language")}
             >
               {language === "fr" ? "FR" : "EN"}
@@ -217,7 +230,7 @@ export function Header() {
                 variant="outline"
                 className="w-full"
                 onClick={() => {
-                  setLanguage(language === "fr" ? "en" : "fr");
+                  handleLanguageSwitch();
                   setMobileMenuOpen(false);
                 }}
               >

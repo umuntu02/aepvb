@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
+import { getTranslations, getCurrentLang } from "@/lib/i18n/server";
 import { getAllTeamMembers } from "@/lib/db/queries/team";
 import { Heart, Eye, Scale, Users } from "lucide-react";
 import { generateMetadata, pageMetadata } from "@/lib/metadata";
@@ -11,8 +11,12 @@ export const metadata = generateMetadata({
   path: "/about",
 });
 
-export default async function AboutPage() {
-  const lang = await getServerLanguage();
+export default async function AboutPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const lang = getCurrentLang(await searchParams);
   const { t } = getTranslations(lang);
   const teamMembers = await getAllTeamMembers();
 

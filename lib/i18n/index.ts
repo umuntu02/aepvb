@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Language, TranslationKey, Translations } from "./types";
 import { fr } from "./fr";
 import { en } from "./en";
@@ -39,16 +40,32 @@ function getStoredLanguage(): Language {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const searchParams = useSearchParams();
   const [language, setLanguageState] = useState<Language>("fr");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = getStoredLanguage();
-    setLanguageState(stored);
-    // Sync to cookie so server components see the same value after hydration
-    document.cookie = `aepvb-language=${stored}; path=/; max-age=31536000; SameSite=Lax`;
+    // DECISION: URL param takes priority on mount so direct links like
+    // /events?lang=en load the correct language without a round-trip.
+    const urlLang = searchParams.get("lang");
+    const initial = urlLang === "en" || urlLang === "fr" ? urlLang : getStoredLanguage();
+    setLanguageState(initial);
+    document.cookie = `aepvb-language=${initial}; path=/; max-age=31536000; SameSite=Lax`;
     setMounted(true);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // DECISION: Sync language whenever the URL ?lang param changes so that
+  // router.push(?lang=en) from Header instantly updates all UI strings
+  // in the same render cycle as the server re-render.
+  useEffect(() => {
+    if (!mounted) return;
+    const urlLang = searchParams.get("lang");
+    if (urlLang === "en" || urlLang === "fr") {
+      setLanguageState(urlLang);
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, urlLang);
+      document.cookie = `aepvb-language=${urlLang}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);

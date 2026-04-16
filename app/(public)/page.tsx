@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
-import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
+import { getTranslations, getCurrentLang } from "@/lib/i18n/server";
 import { Calendar, ArrowRight, MapPin } from "lucide-react";
 import { generateMetadata, pageMetadata } from "@/lib/metadata";
 import { getAllPrograms } from "@/lib/db/queries/programs";
@@ -25,8 +25,12 @@ export const metadata = generateMetadata({
   path: "/",
 });
 
-export default async function HomePage() {
-  const lang = await getServerLanguage();
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const lang = getCurrentLang(await searchParams);
   const { t } = getTranslations(lang);
   const [latestNews, upcomingEvents, allPrograms, teamMembersList, partnersList] =
     await Promise.all([

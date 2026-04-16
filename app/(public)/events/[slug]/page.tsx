@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getEventBySlug, getRelatedEvents } from "@/lib/db/queries/events";
-import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
+import { getTranslations, getCurrentLang } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
@@ -12,9 +12,10 @@ import { generateMetadata as genMeta } from "@/lib/metadata";
 
 interface EventDetailPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }
 
-export async function generateMetadata({ params }: EventDetailPageProps) {
+export async function generateMetadata({ params, searchParams }: EventDetailPageProps) {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
 
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
     });
   }
 
-  const lang = await getServerLanguage();
+  const lang = getCurrentLang(await searchParams);
   return genMeta({
     title: event.title[lang],
     description: event.description[lang],
@@ -36,9 +37,9 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
   });
 }
 
-export default async function EventDetailPage({ params }: EventDetailPageProps) {
+export default async function EventDetailPage({ params, searchParams }: EventDetailPageProps) {
   const { slug } = await params;
-  const lang = await getServerLanguage();
+  const lang = getCurrentLang(await searchParams);
   const { t } = getTranslations(lang);
 
   const event = await getEventBySlug(slug);

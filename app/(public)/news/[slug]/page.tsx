@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getNewsArticleBySlug, getRelatedNews } from "@/lib/db/queries/news";
-import { getTranslations, getServerLanguage } from "@/lib/i18n/server";
+import { getTranslations, getCurrentLang } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, User } from "lucide-react";
@@ -12,9 +12,10 @@ import { generateMetadata as genMeta } from "@/lib/metadata";
 
 interface NewsDetailPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }
 
-export async function generateMetadata({ params }: NewsDetailPageProps) {
+export async function generateMetadata({ params, searchParams }: NewsDetailPageProps) {
   const { slug } = await params;
   const article = await getNewsArticleBySlug(slug);
 
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: NewsDetailPageProps) {
     });
   }
 
-  const lang = await getServerLanguage();
+  const lang = getCurrentLang(await searchParams);
   return genMeta({
     title: article.title[lang],
     description: article.excerpt[lang],
@@ -36,9 +37,9 @@ export async function generateMetadata({ params }: NewsDetailPageProps) {
   });
 }
 
-export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
+export default async function NewsDetailPage({ params, searchParams }: NewsDetailPageProps) {
   const { slug } = await params;
-  const lang = await getServerLanguage();
+  const lang = getCurrentLang(await searchParams);
   const { t } = getTranslations(lang);
 
   const article = await getNewsArticleBySlug(slug);

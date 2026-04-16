@@ -3,6 +3,12 @@ import type { Language, TranslationKey } from "./types";
 import { fr } from "./fr";
 import { en } from "./en";
 
+// DECISION: Pure sync function — pages await their searchParams Promise first,
+// then call this. Keeps pages readable and avoids async in every helper.
+export function getCurrentLang(searchParams: { lang?: string }): Language {
+  return searchParams.lang === "en" ? "en" : "fr";
+}
+
 const translations: Record<Language, Record<TranslationKey, string>> = {
   fr,
   en,
