@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Suspense } from "react";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { LanguageProvider } from "@/components/LanguageProvider";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { ScrollToTop } from "@/components/ScrollToTop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,27 +76,8 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Action pour l'Encadrement et la Promotion des Vulnérables au Burundi - Association pour la défense et la promotion des droits des personnes vulnérables" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
-          {/* DECISION: Suspense required because LanguageProvider uses
-              useSearchParams(), which opts the subtree out of static
-              rendering. fallback={null} renders nothing during the brief
-              SSR pass; client hydration takes over immediately. */}
-          <Suspense fallback={null}>
-            <LanguageProvider>
-              <div className="flex min-h-screen flex-col">
-                <Header />
-                <main id="main-content" className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-                <ScrollToTop />
-              </div>
-            </LanguageProvider>
-          </Suspense>
-        </ThemeProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {children}
       </body>
     </html>
   );
