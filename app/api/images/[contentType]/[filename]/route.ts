@@ -61,7 +61,7 @@ export async function GET(
 
   // DECISION: immutable + 1-year max-age is safe because filenames include a
   // timestamp prefix — the same filename always returns the same bytes.
-  return new Response(data, {
+  return new Response(new Uint8Array(data), {
     headers: {
       "Content-Type": mimeType,
       "Cache-Control": "public, max-age=31536000, immutable",
