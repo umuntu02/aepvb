@@ -1,6 +1,7 @@
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile } from "fs/promises";
 import { join } from "path";
 import { verifyAdminRequest, unauthorized } from "@/lib/admin/verify";
+import { getUploadDir, getPublicPath } from "@/lib/upload";
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -51,12 +52,13 @@ export async function POST(request: Request) {
 
   const ext = file.type === "image/webp" ? ".webp" : file.type === "image/png" ? ".png" : ".jpg";
   const base = sanitizeFilename(file.name.replace(/\.[^.]+$/, ""));
-  const filename = `${base}-${Date.now()}${ext}`;
+  // DECISION: timestamp prefix makes filenames unique and immutable — enables
+  // Cache-Control: immutable on the serve route without stale-content risk.
+  const filename = `${Date.now()}-${base}${ext}`;
 
-  const dir = join(process.cwd(), "public", "img", contentType);
-  await mkdir(dir, { recursive: true });
+  const dir = await getUploadDir(contentType);
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(join(dir, filename), buffer);
 
-  return Response.json({ path: `/img/${contentType}/${filename}` }, { status: 201 });
+  return Response.json({ path: getPublicPath(contentType, filename) }, { status: 201 });
 }

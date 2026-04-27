@@ -67,14 +67,16 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
           <h1 className="mb-4 text-4xl font-bold">{event.title[lang]}</h1>
         </div>
 
-        <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
-          <Image
-            src={event.image}
-            alt={event.title[lang]}
-            fill
-            className="object-cover"
-          />
-        </div>
+        {event.image && (
+          <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
+            <Image
+              src={event.image}
+              alt={event.title[lang]}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
 
         <Card className="mb-8">
           <CardHeader>
@@ -134,14 +136,16 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
             <div className="grid gap-6 md:grid-cols-3">
               {relatedEvents.map((related) => (
                 <Card key={related.id} className="overflow-hidden">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={related.image}
-                      alt={related.title[lang]}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+                  {related.image && (
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={related.image}
+                        alt={related.title[lang]}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <CardTitle className="line-clamp-2">{related.title[lang]}</CardTitle>
                   </CardHeader>

@@ -2,9 +2,8 @@ import { db } from "@/lib/db";
 import { news } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { unlink } from "fs/promises";
-import { join } from "path";
 import { verifyAdminRequest, unauthorized } from "@/lib/admin/verify";
+import { deleteUploadedFile } from "@/lib/upload";
 
 export async function PUT(
   request: Request,
@@ -23,6 +22,9 @@ export async function PUT(
       { status: 400 }
     );
   }
+
+  const [existing] = await db.select().from(news).where(eq(news.id, numId)).limit(1);
+  if (!existing) return Response.json({ error: "Introuvable" }, { status: 404 });
 
   const [updated] = await db
     .update(news)
@@ -49,6 +51,11 @@ export async function PUT(
 
   if (!updated) return Response.json({ error: "Introuvable" }, { status: 404 });
 
+  // Delete old image file only if it changed and was from the upload store.
+  if (existing.image && existing.image !== (body.image ?? null)) {
+    await deleteUploadedFile(existing.image);
+  }
+
   revalidatePath("/");
   revalidatePath("/news");
   revalidatePath("/news/[slug]", "page");
@@ -70,11 +77,7 @@ export async function DELETE(
   if (!row) return Response.json({ error: "Introuvable" }, { status: 404 });
 
   await db.delete(news).where(eq(news.id, numId));
-
-  if (row.image) {
-    const filePath = join(process.cwd(), "public", row.image);
-    await unlink(filePath).catch(() => {});
-  }
+  await deleteUploadedFile(row.image);
 
   revalidatePath("/");
   revalidatePath("/news");

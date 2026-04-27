@@ -80,14 +80,16 @@ export default async function NewsDetailPage({ params, searchParams }: NewsDetai
           </div>
         </div>
 
-        <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
-          <Image
-            src={article.image}
-            alt={article.title[lang]}
-            fill
-            className="object-cover"
-          />
-        </div>
+        {article.image && (
+          <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
+            <Image
+              src={article.image}
+              alt={article.title[lang]}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
 
         <div className="prose prose-lg max-w-none mb-12">
           <p className="text-lg leading-relaxed whitespace-pre-line">{article.content[lang]}</p>
@@ -101,14 +103,16 @@ export default async function NewsDetailPage({ params, searchParams }: NewsDetai
             <div className="grid gap-6 md:grid-cols-3">
               {relatedArticles.map((related) => (
                 <Card key={related.id} className="overflow-hidden">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={related.image}
-                      alt={related.title[lang]}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+                  {related.image && (
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={related.image}
+                        alt={related.title[lang]}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <CardTitle className="line-clamp-2">{related.title[lang]}</CardTitle>
                   </CardHeader>

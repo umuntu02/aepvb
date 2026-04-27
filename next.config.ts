@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    // DECISION: localPatterns restricts which internal paths next/image may
+    // optimize. /api/images/** serves uploads from the persistent store;
+    // /img/** covers static files already committed to public/.
+    localPatterns: [
+      { pathname: "/api/images/**" },
+      { pathname: "/img/**" },
+    ],
+  },
 };
 
 export default nextConfig;

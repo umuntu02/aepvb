@@ -76,14 +76,16 @@ export default function ProgramsClient({ programs }: ProgramsClientProps) {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredPrograms.map((program) => (
             <Card key={program.id} className="overflow-hidden">
-              <div className="relative h-48 w-full">
-                <Image
-                  src={program.image}
-                  alt={program.title[language]}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              {program.image && (
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={program.image}
+                    alt={program.title[language]}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
               <CardHeader>
                 <Badge variant="secondary" className="mb-2 w-fit">
                   {t(`programs.filter.${program.category}`)}

@@ -86,14 +86,16 @@ export default function NewsClient({ articles }: NewsClientProps) {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredNews.map((article) => (
           <Card key={article.id} className="overflow-hidden">
-            <div className="relative h-48 w-full">
-              <Image
-                src={article.image}
-                alt={article.title[language]}
-                fill
-                className="object-cover"
-              />
-            </div>
+            {article.image && (
+              <div className="relative h-48 w-full">
+                <Image
+                  src={article.image}
+                  alt={article.title[language]}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
             <CardHeader>
               <Badge variant="outline" className="mb-2 w-fit">
                 {article.category}

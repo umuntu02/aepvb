@@ -2,9 +2,8 @@ import { db } from "@/lib/db";
 import { teamMembers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { unlink } from "fs/promises";
-import { join } from "path";
 import { verifyAdminRequest, unauthorized } from "@/lib/admin/verify";
+import { deleteUploadedFile } from "@/lib/upload";
 
 export async function PUT(
   request: Request,
@@ -24,6 +23,13 @@ export async function PUT(
     );
   }
 
+  const [existing] = await db
+    .select()
+    .from(teamMembers)
+    .where(eq(teamMembers.id, numId))
+    .limit(1);
+  if (!existing) return Response.json({ error: "Introuvable" }, { status: 404 });
+
   const [updated] = await db
     .update(teamMembers)
     .set({
@@ -39,6 +45,10 @@ export async function PUT(
     .returning();
 
   if (!updated) return Response.json({ error: "Introuvable" }, { status: 404 });
+
+  if (existing.photo && existing.photo !== (body.photo ?? null)) {
+    await deleteUploadedFile(existing.photo);
+  }
 
   revalidatePath("/about");
   return Response.json(updated);
@@ -62,10 +72,7 @@ export async function DELETE(
   if (!row) return Response.json({ error: "Introuvable" }, { status: 404 });
 
   await db.delete(teamMembers).where(eq(teamMembers.id, numId));
-
-  if (row.photo) {
-    await unlink(join(process.cwd(), "public", row.photo)).catch(() => {});
-  }
+  await deleteUploadedFile(row.photo);
 
   revalidatePath("/about");
   return Response.json({ ok: true });

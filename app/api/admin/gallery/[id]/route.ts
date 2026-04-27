@@ -2,9 +2,8 @@ import { db } from "@/lib/db";
 import { gallery } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { unlink } from "fs/promises";
-import { join } from "path";
 import { verifyAdminRequest, unauthorized } from "@/lib/admin/verify";
+import { deleteUploadedFile } from "@/lib/upload";
 
 export async function PUT(
   request: Request,
@@ -24,6 +23,9 @@ export async function PUT(
     );
   }
 
+  const [existing] = await db.select().from(gallery).where(eq(gallery.id, numId)).limit(1);
+  if (!existing) return Response.json({ error: "Introuvable" }, { status: 404 });
+
   const [updated] = await db
     .update(gallery)
     .set({
@@ -38,6 +40,10 @@ export async function PUT(
     .returning();
 
   if (!updated) return Response.json({ error: "Introuvable" }, { status: 404 });
+
+  if (existing.src && existing.src !== body.src) {
+    await deleteUploadedFile(existing.src);
+  }
 
   revalidatePath("/gallery");
   return Response.json(updated);
@@ -57,7 +63,7 @@ export async function DELETE(
   if (!row) return Response.json({ error: "Introuvable" }, { status: 404 });
 
   await db.delete(gallery).where(eq(gallery.id, numId));
-  await unlink(join(process.cwd(), "public", row.src)).catch(() => {});
+  await deleteUploadedFile(row.src);
 
   revalidatePath("/gallery");
   return Response.json({ ok: true });

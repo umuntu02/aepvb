@@ -70,24 +70,26 @@ export function News({
               {/* Article Content: Image + Text in Flex Layout */}
               <div className="flex flex-col md:flex-row">
                 {/* Image Section - Left Side */}
-                <div className="relative w-full md:w-[40%] h-64 md:h-auto min-h-[250px] flex-shrink-0 overflow-hidden">
-                  <Image
-                    src={news.image}
-                    alt={news.title[language] || news.title.fr}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    sizes="(max-width: 768px) 100vw, 40vw"
-                  />
-                  {/* Category Badge Overlaying Image */}
-                  <div className="absolute top-4 left-4 z-10">
-                    <Badge
-                      variant="secondary"
-                      className="bg-black/80 text-white backdrop-blur-sm hover:bg-black/90 px-3 py-1.5 text-xs font-medium shadow-lg transition-colors duration-200"
-                    >
-                      {news.category}
-                    </Badge>
+                {news.image && (
+                  <div className="relative w-full md:w-[40%] h-64 md:h-auto min-h-[250px] flex-shrink-0 overflow-hidden">
+                    <Image
+                      src={news.image}
+                      alt={news.title[language] || news.title.fr}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, 40vw"
+                    />
+                    {/* Category Badge Overlaying Image */}
+                    <div className="absolute top-4 left-4 z-10">
+                      <Badge
+                        variant="secondary"
+                        className="bg-black/80 text-white backdrop-blur-sm hover:bg-black/90 px-3 py-1.5 text-xs font-medium shadow-lg transition-colors duration-200"
+                      >
+                        {news.category}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Text Content - Right Side */}
                 <div className="flex-1 flex flex-col p-6 md:p-8">

@@ -65,14 +65,16 @@ export default async function ProgramDetailPage({ params, searchParams }: Progra
           <h1 className="mb-4 text-4xl font-bold">{program.title[lang]}</h1>
         </div>
 
-        <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
-          <Image
-            src={program.image}
-            alt={program.title[lang]}
-            fill
-            className="object-cover"
-          />
-        </div>
+        {program.image && (
+          <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
+            <Image
+              src={program.image}
+              alt={program.title[lang]}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
 
         <div className="prose prose-lg max-w-none mb-12">
           <p className="text-lg leading-relaxed">{program.fullDescription[lang]}</p>
@@ -84,14 +86,16 @@ export default async function ProgramDetailPage({ params, searchParams }: Progra
             <div className="grid gap-6 md:grid-cols-3">
               {related.map((rel) => (
                 <Card key={rel.id} className="overflow-hidden">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={rel.image}
-                      alt={rel.title[lang]}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+                  {rel.image && (
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={rel.image}
+                        alt={rel.title[lang]}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <CardTitle className="line-clamp-2">{rel.title[lang]}</CardTitle>
                   </CardHeader>

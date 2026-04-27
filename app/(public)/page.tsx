@@ -57,14 +57,16 @@ export default async function HomePage({
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {featuredPrograms.map((program) => (
               <Card key={program.id} className="overflow-hidden">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={program.image}
-                    alt={program.title[lang]}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                {program.image && (
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={program.image}
+                      alt={program.title[lang]}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader>
                   <Badge variant="secondary" className="mb-2 w-fit">
                     {t(`programs.filter.${program.category}`)}
@@ -103,14 +105,16 @@ export default async function HomePage({
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {upcomingEvents.map((event) => (
               <Card key={event.id} className="overflow-hidden">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={event.image}
-                    alt={event.title[lang]}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                {event.image && (
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={event.image}
+                      alt={event.title[lang]}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader>
                   <Badge variant="secondary" className="mb-2 w-fit">
                     {event.type}

@@ -2,9 +2,8 @@ import { db } from "@/lib/db";
 import { events } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { unlink } from "fs/promises";
-import { join } from "path";
 import { verifyAdminRequest, unauthorized } from "@/lib/admin/verify";
+import { deleteUploadedFile } from "@/lib/upload";
 
 export async function PUT(
   request: Request,
@@ -23,6 +22,9 @@ export async function PUT(
       { status: 400 }
     );
   }
+
+  const [existing] = await db.select().from(events).where(eq(events.id, numId)).limit(1);
+  if (!existing) return Response.json({ error: "Introuvable" }, { status: 404 });
 
   const [updated] = await db
     .update(events)
@@ -47,6 +49,10 @@ export async function PUT(
 
   if (!updated) return Response.json({ error: "Introuvable" }, { status: 404 });
 
+  if (existing.image && existing.image !== (body.image ?? null)) {
+    await deleteUploadedFile(existing.image);
+  }
+
   revalidatePath("/");
   revalidatePath("/events");
   revalidatePath("/events/[slug]", "page");
@@ -68,10 +74,7 @@ export async function DELETE(
   if (!row) return Response.json({ error: "Introuvable" }, { status: 404 });
 
   await db.delete(events).where(eq(events.id, numId));
-
-  if (row.image) {
-    await unlink(join(process.cwd(), "public", row.image)).catch(() => {});
-  }
+  await deleteUploadedFile(row.image);
 
   revalidatePath("/");
   revalidatePath("/events");

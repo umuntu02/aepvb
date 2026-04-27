@@ -39,14 +39,16 @@ export default function EventsClient({ upcoming, past }: EventsClientProps) {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {events.map((event) => (
             <Card key={event.id} className="overflow-hidden">
-              <div className="relative h-48 w-full">
-                <Image
-                  src={event.image}
-                  alt={event.title[language]}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              {event.image && (
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={event.image}
+                    alt={event.title[language]}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
               <CardHeader>
                 <Badge variant="secondary" className="mb-2 w-fit">
                   {event.type}
