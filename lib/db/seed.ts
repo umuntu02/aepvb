@@ -16,7 +16,8 @@ import {
 async function seed() {
   // Dynamic import runs after dotenv has loaded env vars into process.env
   const { db } = await import("./index.js");
-  const { news, programs, events, gallery, teamMembers, partners } =
+  const { news, programs, events, gallery, teamMembers, partners,
+          heroSlides, highlights, testimonials, ctaBlock } =
     await import("./schema.js");
 
   console.log("Seeding database...");
@@ -215,10 +216,100 @@ async function seed() {
       },
     });
 
+  // ── Hero Slides ───────────────────────────────────────────────────────────
+  // DECISION: seeded from the images previously hardcoded in Hero.tsx
+  const heroSlidesData = [
+    { image: "/img/IMG_20200731_123515.png", altFr: "Communauté AEPVB", altEn: "AEPVB Community", titleFr: "Action pour l'Encadrement et la Promotion des Vulnérables au Burundi", titleEn: "Action for the Support and Promotion of Vulnerable People in Burundi", ordinal: 0 },
+    { image: "/img/IMG_20200731_135408.jpg", altFr: "Activités AEPVB", altEn: "AEPVB Activities", titleFr: "Nos Activités", titleEn: "Our Activities", ordinal: 1 },
+    { image: "/img/IMG_20200731_135419.jpg", altFr: "Programmes AEPVB", altEn: "AEPVB Programs", titleFr: "Nos Programmes", titleEn: "Our Programs", ordinal: 2 },
+    { image: "/img/IMG_20200731_140253.jpg", altFr: "Événements AEPVB", altEn: "AEPVB Events", titleFr: "Nos Événements", titleEn: "Our Events", ordinal: 3 },
+  ];
+  for (const slide of heroSlidesData) {
+    await db
+      .insert(heroSlides)
+      .values({ ...slide, status: "published" })
+      .onConflictDoNothing();
+  }
+
+  // ── Highlights (Chiffres clés) ────────────────────────────────────────────
+  // DECISION: seeded with statistics derived from AEPVB mission content
+  const highlightsData = [
+    { icon: "Users", valueFr: "1500+", valueEn: "1500+", labelFr: "Personnes aidées", labelEn: "People helped", ordinal: 0 },
+    { icon: "BookOpen", valueFr: "10", valueEn: "10", labelFr: "Programmes actifs", labelEn: "Active programs", ordinal: 1 },
+    { icon: "Handshake", valueFr: "8", valueEn: "8", labelFr: "Partenaires", labelEn: "Partners", ordinal: 2 },
+    { icon: "Calendar", valueFr: "2016", valueEn: "2016", labelFr: "Année de fondation", labelEn: "Founded in", ordinal: 3 },
+  ];
+  for (const h of highlightsData) {
+    await db
+      .insert(highlights)
+      .values({ ...h, status: "published" })
+      .onConflictDoNothing();
+  }
+
+  // ── Testimonials ──────────────────────────────────────────────────────────
+  // DECISION: seeded from the defaultTestimonials previously hardcoded in Testimonials.tsx
+  const testimonialsData = [
+    {
+      authorName: "Parent",
+      authorRoleFr: "Parent d'élève",
+      authorRoleEn: "Parent",
+      authorPhoto: "/img/IMG_8674.JPG",
+      contentFr: "Ma plus grande satisfaction est de voir la réussite de mes enfants grâce au soutien de l'AEPVB.",
+      contentEn: "My greatest satisfaction is seeing my children's success thanks to AEPVB's support.",
+      ordinal: 0,
+    },
+    {
+      authorName: "Étudiant",
+      authorRoleFr: "Étudiant bénéficiaire",
+      authorRoleEn: "Beneficiary student",
+      authorPhoto: "/img/IMG_8685.JPG",
+      contentFr: "Toutes les conditions étaient remplies pour bien étudier. L'AEPVB a changé ma vie.",
+      contentEn: "All conditions were met for good study. AEPVB changed my life.",
+      ordinal: 1,
+    },
+  ];
+  for (const t of testimonialsData) {
+    await db
+      .insert(testimonials)
+      .values({ ...t, status: "published" })
+      .onConflictDoNothing();
+  }
+
+  // ── CTA Block ─────────────────────────────────────────────────────────────
+  // DECISION: upsert by id=1 — single-row table, re-runnable without duplicating
+  await db
+    .insert(ctaBlock)
+    .values({
+      id: 1,
+      titleFr: "Soutenez Notre Cause",
+      titleEn: "Support Our Cause",
+      subtitleFr: "Votre contribution fait la différence dans la vie des personnes vulnérables",
+      subtitleEn: "Your contribution makes a difference in the lives of vulnerable people",
+      buttonLabelFr: "Faire un don",
+      buttonLabelEn: "Donate",
+      buttonUrl: "/donate",
+      status: "published",
+    })
+    .onConflictDoUpdate({
+      target: ctaBlock.id,
+      set: {
+        titleFr: sql`excluded.title_fr`,
+        titleEn: sql`excluded.title_en`,
+        subtitleFr: sql`excluded.subtitle_fr`,
+        subtitleEn: sql`excluded.subtitle_en`,
+        buttonLabelFr: sql`excluded.button_label_fr`,
+        buttonLabelEn: sql`excluded.button_label_en`,
+        buttonUrl: sql`excluded.button_url`,
+        updatedAt: sql`now()`,
+      },
+    });
+
   console.log(
     `Seeded: ${programsData.length} programs, ${eventsData.length} events, ` +
       `${galleryImages.length} gallery items, ${teamMembersData.length} team members, ` +
-      `${partnersData.length} partners, ${newsArticles.length} news articles`
+      `${partnersData.length} partners, ${newsArticles.length} news articles, ` +
+      `${heroSlidesData.length} hero slides, ${highlightsData.length} highlights, ` +
+      `${testimonialsData.length} testimonials, 1 CTA block`
   );
 
   process.exit(0);

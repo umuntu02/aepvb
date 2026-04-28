@@ -114,8 +114,12 @@ export const partners = pgTable("partners", {
   name: text("name").unique().notNull(),
   // DECISION: logo is nullable — no partner has a logo in the initial dataset
   logo: text("logo"),
+  altFr: text("alt_fr"),
+  altEn: text("alt_en"),
   website: text("website"),
   ordinal: integer("ordinal").default(0).notNull(),
+  // DECISION: status mirrors hero_slides pattern — 'draft'|'published'
+  status: text("status").default("published").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -133,6 +137,93 @@ export const albumPhotos = pgTable("album_photos", {
   ordinal: integer("ordinal").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// hero_slides — each row is one background slide in the home page hero carousel.
+// Ordinal controls display order. Status drives draft/publish workflow.
+// DECISION: per-slide title/subtitle/CTA stored for future rich-slide design;
+// current carousel uses image+alt only, so no wasted columns on publish.
+// ---------------------------------------------------------------------------
+export const heroSlides = pgTable("hero_slides", {
+  id: serial("id").primaryKey(),
+  image: text("image").notNull(),
+  altFr: text("alt_fr").notNull(),
+  altEn: text("alt_en").notNull(),
+  titleFr: text("title_fr").notNull(),
+  titleEn: text("title_en").notNull(),
+  subtitleFr: text("subtitle_fr"),
+  subtitleEn: text("subtitle_en"),
+  ctaLabelFr: text("cta_label_fr"),
+  ctaLabelEn: text("cta_label_en"),
+  ctaUrl: text("cta_url"),
+  ordinal: integer("ordinal").default(0).notNull(),
+  // DECISION: status text vs boolean — allows future 'scheduled' state
+  status: text("status").default("published").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// highlights — key statistics displayed as a "Chiffres clés" section on home.
+// icon is a Lucide icon name string rendered client-side via dynamic lookup.
+// ---------------------------------------------------------------------------
+export const highlights = pgTable("highlights", {
+  id: serial("id").primaryKey(),
+  icon: text("icon"),
+  valueFr: text("value_fr").notNull(),
+  valueEn: text("value_en").notNull(),
+  labelFr: text("label_fr").notNull(),
+  labelEn: text("label_en").notNull(),
+  ordinal: integer("ordinal").default(0).notNull(),
+  status: text("status").default("published").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// testimonials — quotes from beneficiaries/parents displayed on home page.
+// author_photo is optional; content_fr/en is the testimonial body.
+// ---------------------------------------------------------------------------
+export const testimonials = pgTable("testimonials", {
+  id: serial("id").primaryKey(),
+  authorName: text("author_name").notNull(),
+  authorRoleFr: text("author_role_fr"),
+  authorRoleEn: text("author_role_en"),
+  authorPhoto: text("author_photo"),
+  contentFr: text("content_fr").notNull(),
+  contentEn: text("content_en").notNull(),
+  ordinal: integer("ordinal").default(0).notNull(),
+  status: text("status").default("published").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// cta_block — single-row table for the home page donate CTA.
+// DECISION: single row enforced in UI (edit only, no create button).
+// Seeded with a default row; admins may only update it.
+// ---------------------------------------------------------------------------
+export const ctaBlock = pgTable("cta_block", {
+  id: serial("id").primaryKey(),
+  titleFr: text("title_fr").notNull(),
+  titleEn: text("title_en").notNull(),
+  subtitleFr: text("subtitle_fr"),
+  subtitleEn: text("subtitle_en"),
+  buttonLabelFr: text("button_label_fr").notNull(),
+  buttonLabelEn: text("button_label_en").notNull(),
+  buttonUrl: text("button_url").notNull(),
+  status: text("status").default("published").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type HeroSlideRow = typeof heroSlides.$inferSelect;
+export type NewHeroSlide = typeof heroSlides.$inferInsert;
+export type HighlightRow = typeof highlights.$inferSelect;
+export type NewHighlight = typeof highlights.$inferInsert;
+export type TestimonialRow = typeof testimonials.$inferSelect;
+export type NewTestimonial = typeof testimonials.$inferInsert;
+export type CtaBlockRow = typeof ctaBlock.$inferSelect;
+export type NewCtaBlock = typeof ctaBlock.$inferInsert;
 
 export type AlbumPhotoRow = typeof albumPhotos.$inferSelect;
 export type NewAlbumPhoto = typeof albumPhotos.$inferInsert;

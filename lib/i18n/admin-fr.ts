@@ -163,6 +163,20 @@ export const adminFr = {
   albumNoPhotos: "Aucune photo pour l'instant.",
   albumSaveFirst: "Vous pourrez ajouter des photos après avoir sauvegardé.",
 
+  // Galerie — multi-upload
+  galleryMultiDropzone: "Cliquez ou déposez vos photos ici",
+  galleryMultiHint: "JPG, PNG, WEBP — max 5 Mo — plusieurs fichiers acceptés",
+  galleryMultiClearAll: "Tout supprimer",
+  galleryMultiSubmit: (n: number) => `Envoyer ${n} photo${n > 1 ? "s" : ""}`,
+  galleryMultiDone: "Enregistré ✓",
+  galleryMultiError: "Erreur ✗",
+  galleryMultiSuccess: (n: number) =>
+    `${n} photo${n > 1 ? "s ajoutées" : " ajoutée"} à la galerie`,
+  galleryMultiFileTooLarge: "Fichier trop lourd (max 5 Mo)",
+  galleryMultiInvalidType: "Format invalide (JPG, PNG, WEBP uniquement)",
+  galleryMultiAltFrPlaceholder: "Texte alternatif en français",
+  galleryMultiAltEnPlaceholder: "Alternative text in English",
+
   // Partenaires
   partnersTitle: "Partenaires",
   partnersAdd: "+ Ajouter un partenaire",
@@ -172,6 +186,104 @@ export const adminFr = {
   partnersColLogo: "Logo",
   partnersColWebsite: "Site web",
   partnersReorder: "Faites glisser pour réordonner",
+
+  // Navigation sections (sidebar)
+  navSectionsGroup: "Sections de la page d'accueil",
+  navSectionHero: "Hero Carousel",
+  navSectionHighlights: "Chiffres clés",
+  navSectionTestimonials: "Témoignages",
+  navSectionCta: "Bloc CTA",
+  navSectionPartners: "Partenaires (accueil)",
+
+  // Dashboard visual map
+  dashboardSiteMap: "Carte du site",
+  dashboardStatsPanel: "Statistiques du contenu",
+  dashboardModify: "Modifier",
+  dashboardPreview: "Aperçu →",
+  dashboardPublished: (n: number) => `${n} publié${n > 1 ? "s" : ""}`,
+  dashboardDraft: (n: number) => `${n} brouillon${n > 1 ? "s" : ""}`,
+  dashboardQuickAddSlide: "+ Slide hero",
+  dashboardSectionHero: "Hero Carousel",
+  dashboardSectionHighlights: "Chiffres clés",
+  dashboardSectionNews: "Actualités",
+  dashboardSectionPartners: "Partenaires",
+  dashboardSectionTestimonials: "Témoignages",
+  dashboardSectionCta: "Bloc CTA",
+
+  // Status toggle
+  statusToggleDraft: "Brouillon",
+  statusTogglePublished: "Publié",
+  statusPublishedHelp: "Visible sur le site public",
+  statusDraftHelp: "Non visible sur le site public",
+
+  // Preview
+  previewButton: "Aperçu sur le site →",
+  previewBannerText: "MODE APERÇU — Les brouillons sont visibles. Cette vue n'est pas publique.",
+  previewBannerQuit: "Quitter l'aperçu",
+
+  // Hero section editor
+  heroTitle: "Hero Carousel",
+  heroAdd: "+ Ajouter un slide",
+  heroNew: "Nouveau slide",
+  heroEdit: "Modifier le slide",
+  heroColImage: "Image",
+  heroColTitle: "Titre",
+  heroColStatus: "Statut",
+  heroReorder: "Faites glisser pour réordonner les slides",
+  heroFieldTitleFr: "Titre (Français)",
+  heroFieldTitleEn: "Title (English)",
+  heroFieldSubtitleFr: "Sous-titre (Français)",
+  heroFieldSubtitleEn: "Subtitle (English)",
+  heroFieldCtaLabelFr: "Texte du bouton (Français)",
+  heroFieldCtaLabelEn: "Button text (English)",
+  heroFieldCtaUrl: "Lien du bouton (URL)",
+  heroFieldAltFr: "Texte alternatif de l'image (Français)",
+  heroFieldAltEn: "Image alt text (English)",
+
+  // Highlights (Chiffres clés) section editor
+  highlightsTitle: "Chiffres clés",
+  highlightsAdd: "+ Ajouter un chiffre clé",
+  highlightsNew: "Nouveau chiffre clé",
+  highlightsEdit: "Modifier le chiffre clé",
+  highlightsColIcon: "Icône",
+  highlightsColValue: "Valeur",
+  highlightsColLabel: "Libellé",
+  highlightsColStatus: "Statut",
+  highlightsReorder: "Faites glisser pour réordonner",
+  highlightsFieldIcon: "Nom de l'icône (Lucide)",
+  highlightsFieldValueFr: "Valeur (Français) — ex. 500+",
+  highlightsFieldValueEn: "Value (English) — e.g. 500+",
+  highlightsFieldLabelFr: "Libellé (Français) — ex. Bénéficiaires aidés",
+  highlightsFieldLabelEn: "Label (English) — e.g. People helped",
+  highlightsIconPickerTitle: "Choisir une icône",
+
+  // Testimonials section editor
+  testimonialsTitle: "Témoignages",
+  testimonialsAdd: "+ Ajouter un témoignage",
+  testimonialsNew: "Nouveau témoignage",
+  testimonialsEdit: "Modifier le témoignage",
+  testimonialsColAuthor: "Auteur",
+  testimonialsColContent: "Témoignage",
+  testimonialsColStatus: "Statut",
+  testimonialsReorder: "Faites glisser pour réordonner",
+  testimonialsFieldAuthorName: "Nom de l'auteur",
+  testimonialsFieldRoleFr: "Rôle (Français)",
+  testimonialsFieldRoleEn: "Role (English)",
+  testimonialsFieldContentFr: "Témoignage (Français)",
+  testimonialsFieldContentEn: "Testimonial (English)",
+  testimonialsFieldPhoto: "Photo de l'auteur (optionnel)",
+
+  // CTA block editor
+  ctaTitle: "Bloc CTA",
+  ctaSubtitle: "Ce bloc apparaît sur la page d'accueil pour inciter aux dons.",
+  ctaFieldTitleFr: "Titre (Français)",
+  ctaFieldTitleEn: "Title (English)",
+  ctaFieldSubtitleFr: "Sous-titre (Français)",
+  ctaFieldSubtitleEn: "Subtitle (English)",
+  ctaFieldButtonLabelFr: "Texte du bouton (Français)",
+  ctaFieldButtonLabelEn: "Button text (English)",
+  ctaFieldButtonUrl: "Lien du bouton (URL)",
+  ctaHiddenWhenDraft: "Le bloc CTA est masqué sur le site quand il est en mode Brouillon.",
 } as const;
 
 export type AdminFr = typeof adminFr;

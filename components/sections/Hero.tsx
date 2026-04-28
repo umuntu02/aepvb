@@ -5,41 +5,44 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { HeroCarousel } from "./HeroCarousel";
 
+// DECISION: fallback images used when DB has no published slides yet,
+// preserving current appearance during initial deploy before seed runs.
+const FALLBACK_IMAGES = [
+  { src: "/img/IMG_20200731_123515.png", mobileSrc: "/img/IMG_20200731_123515x700.png", alt: "AEPVB Community" },
+  { src: "/img/IMG_20200731_135408.jpg", alt: "AEPVB Activities" },
+  { src: "/img/IMG_20200731_135419.jpg", alt: "AEPVB Programs" },
+  { src: "/img/IMG_20200731_140253.jpg", alt: "AEPVB Events" },
+];
+
+interface HeroSlide {
+  image: string;
+  altFr: string;
+  altEn: string;
+}
+
 interface HeroProps {
+  slides?: HeroSlide[];
+  lang?: string;
   className?: string;
 }
 
-const heroImages = [
-  {
-    src: "/img/IMG_20200731_123515.png",
-    mobileSrc: "/img/IMG_20200731_123515x700.png",
-    alt: "AEPVB Community",
-  },
-  {
-    src: "/img/IMG_20200731_135408.jpg",
-    alt: "AEPVB Activities",
-  },
-  {
-    src: "/img/IMG_20200731_135419.jpg",
-    alt: "AEPVB Programs",
-  },
-  {
-    src: "/img/IMG_20200731_140253.jpg",
-    alt: "AEPVB Events",
-  },
-];
-
-export function Hero({ className }: HeroProps) {
+export function Hero({ slides, lang = "fr", className }: HeroProps) {
   const { t } = useTranslations();
+
+  const carouselImages =
+    slides && slides.length > 0
+      ? slides.map((s) => ({ src: s.image, alt: lang === "en" ? s.altEn : s.altFr }))
+      : FALLBACK_IMAGES;
 
   return (
     <section
       className={`relative min-h-[600px] flex items-center justify-center ${className || ""}`}
       aria-label="Hero section"
+      id="hero"
     >
       {/* Carousel Background */}
       <div className="absolute inset-0 z-0">
-        <HeroCarousel images={heroImages} interval={5000} className="h-full w-full" />
+        <HeroCarousel images={carouselImages} interval={5000} className="h-full w-full" />
         {/* Overlay for better text readability */}
         <div className="absolute inset-0 bg-black/30 z-10" />
       </div>

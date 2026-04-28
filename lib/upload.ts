@@ -8,6 +8,8 @@ const ALLOWED_CONTENT_TYPES = new Set([
   "programs",
   "team",
   "partners",
+  "hero",
+  "testimonials",
 ]);
 
 // DECISION: UPLOAD_DIR env var lets dev/VPS use different base paths without

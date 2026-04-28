@@ -14,11 +14,23 @@ import {
   LogOut,
   Menu,
   X,
+  MonitorPlay,
+  BarChart3,
+  MessageSquareQuote,
+  Megaphone,
+  ChevronDown,
 } from "lucide-react";
 import { adminFr } from "@/lib/i18n/admin-fr";
 
-const NAV_ITEMS = [
-  { label: adminFr.navDashboard, href: "/admin", icon: LayoutDashboard },
+const SECTION_ITEMS = [
+  { label: adminFr.navSectionHero, href: "/admin/sections/hero", icon: MonitorPlay },
+  { label: adminFr.navSectionHighlights, href: "/admin/sections/highlights", icon: BarChart3 },
+  { label: adminFr.navSectionTestimonials, href: "/admin/sections/testimonials", icon: MessageSquareQuote },
+  { label: adminFr.navSectionCta, href: "/admin/sections/cta", icon: Megaphone },
+  { label: adminFr.navSectionPartners, href: "/admin/partners", icon: Handshake },
+];
+
+const CONTENT_ITEMS = [
   { label: adminFr.navNews, href: "/admin/news", icon: Newspaper },
   { label: adminFr.navEvents, href: "/admin/events", icon: CalendarDays },
   { label: adminFr.navGallery, href: "/admin/gallery", icon: ImageIcon },
@@ -32,7 +44,7 @@ function NavLink({
   pathname,
   onClick,
 }: {
-  item: (typeof NAV_ITEMS)[number];
+  item: { label: string; href: string; icon: React.ElementType };
   pathname: string;
   onClick?: () => void;
 }) {
@@ -58,24 +70,18 @@ function NavLink({
   );
 }
 
-export function AdminSidebar() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
+interface SidebarContentProps {
+  pathname: string;
+  sectionsOpen: boolean;
+  onToggleSections: () => void;
+  onLogout: () => void;
+  onClose?: () => void;
+}
 
-  const currentSection =
-    NAV_ITEMS.find((item) =>
-      item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)
-    )?.label ?? adminFr.navDashboard;
-
-  async function handleLogout() {
-    await fetch("/api/admin/auth", { method: "DELETE" });
-    router.push("/admin/login");
-  }
-
-  const SidebarContent = ({ onClose }: { onClose?: () => void }) => (
-    <div className="flex flex-col h-full">
-      <div className="px-4 py-5 border-b border-gray-200">
+function SidebarContent({ pathname, sectionsOpen, onToggleSections, onLogout, onClose }: SidebarContentProps) {
+  return (
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-4 py-5 border-b border-gray-200 shrink-0">
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
           Administration
         </p>
@@ -86,19 +92,48 @@ export function AdminSidebar() {
         aria-label="Navigation administration"
         className="flex-1 px-3 py-4 flex flex-col gap-1"
       >
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.href}
-            item={item}
-            pathname={pathname}
-            onClick={onClose}
-          />
-        ))}
+        <NavLink
+          item={{ label: adminFr.navDashboard, href: "/admin", icon: LayoutDashboard }}
+          pathname={pathname}
+          onClick={onClose}
+        />
+
+        <div className="mt-3">
+          <button
+            onClick={onToggleSections}
+            className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors"
+            aria-expanded={sectionsOpen}
+          >
+            <span>{adminFr.navSectionsGroup}</span>
+            <ChevronDown
+              className={`h-3 w-3 transition-transform ${sectionsOpen ? "rotate-180" : ""}`}
+              aria-hidden
+            />
+          </button>
+          {sectionsOpen && (
+            <div className="flex flex-col gap-1 mt-1">
+              {SECTION_ITEMS.map((item) => (
+                <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-3">
+          <p className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Contenu
+          </p>
+          <div className="flex flex-col gap-1 mt-1">
+            {CONTENT_ITEMS.map((item) => (
+              <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} />
+            ))}
+          </div>
+        </div>
       </nav>
 
-      <div className="px-3 py-4 border-t border-gray-200">
+      <div className="px-3 py-4 border-t border-gray-200 shrink-0">
         <button
-          onClick={handleLogout}
+          onClick={onLogout}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors w-full"
         >
           <LogOut className="h-4 w-4 shrink-0" aria-hidden />
@@ -107,12 +142,40 @@ export function AdminSidebar() {
       </div>
     </div>
   );
+}
+
+export function AdminSidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [sectionsOpen, setSectionsOpen] = useState(
+    pathname.startsWith("/admin/sections") || pathname.startsWith("/admin/partners")
+  );
+
+  const currentSection =
+    [...SECTION_ITEMS, ...CONTENT_ITEMS].find((item) =>
+      item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)
+    )?.label ?? adminFr.navDashboard;
+
+  async function handleLogout() {
+    await fetch("/api/admin/auth", { method: "DELETE" });
+    router.push("/admin/login");
+  }
+
+  function toggleSections() {
+    setSectionsOpen((v) => !v);
+  }
 
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-60 shrink-0 bg-white border-r border-gray-200 h-screen sticky top-0">
-        <SidebarContent />
+      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-white border-r border-gray-200 h-screen sticky top-0">
+        <SidebarContent
+          pathname={pathname}
+          sectionsOpen={sectionsOpen}
+          onToggleSections={toggleSections}
+          onLogout={handleLogout}
+        />
       </aside>
 
       {/* Mobile top bar */}
@@ -148,7 +211,13 @@ export function AdminSidebar() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <SidebarContent onClose={() => setOpen(false)} />
+            <SidebarContent
+              pathname={pathname}
+              sectionsOpen={sectionsOpen}
+              onToggleSections={toggleSections}
+              onLogout={handleLogout}
+              onClose={() => setOpen(false)}
+            />
           </aside>
         </div>
       )}

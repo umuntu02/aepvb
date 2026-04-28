@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { gallery } from "@/lib/db/schema";
-import { asc } from "drizzle-orm";
+import { asc, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { verifyAdminRequest, unauthorized } from "@/lib/admin/verify";
 
@@ -28,7 +28,8 @@ export async function POST(request: Request) {
   const [maxOrdinal] = await db
     .select({ ordinal: gallery.ordinal })
     .from(gallery)
-    .orderBy(asc(gallery.ordinal));
+    .orderBy(desc(gallery.ordinal))
+    .limit(1);
   const nextOrdinal = (maxOrdinal?.ordinal ?? -1) + 1;
 
   const [created] = await db

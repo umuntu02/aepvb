@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
-import { news, programs, events, gallery, teamMembers, partners } from "@/lib/db/schema";
-import { count, desc, eq, gte, lt, sql } from "drizzle-orm";
+import { news, programs, events, gallery, teamMembers, partners,
+         heroSlides, highlights, testimonials } from "@/lib/db/schema";
+import { count, desc, eq, gte, lt, sql, and } from "drizzle-orm";
 
 export async function getDashboardStats() {
   const today = new Date().toISOString().split("T")[0];
@@ -31,6 +32,61 @@ export async function getDashboardStats() {
     eventsPast: pastCount.count,
     gallery: galleryCount.count,
     programs: programsCount.count,
+  };
+}
+
+export interface ContentSummary {
+  hero: { total: number; published: number; draft: number };
+  highlights: { total: number; published: number; draft: number };
+  testimonials: { total: number; published: number; draft: number };
+  partners: { total: number; published: number; draft: number };
+  news: { total: number; published: number; draft: number };
+  events: { total: number; upcoming: number; past: number };
+  gallery: { total: number };
+  programs: { total: number; published: number };
+}
+
+export async function getContentSummary(): Promise<ContentSummary> {
+  const today = new Date().toISOString().split("T")[0];
+
+  const [
+    [heroTotal], [heroPub],
+    [hlTotal], [hlPub],
+    [testTotal], [testPub],
+    [partTotal], [partPub],
+    [newsTotal], [newsPub],
+    [evtUpcoming], [evtPast],
+    [galTotal],
+    [progTotal], [progPub],
+  ] = await Promise.all([
+    db.select({ count: count() }).from(heroSlides),
+    db.select({ count: count() }).from(heroSlides).where(eq(heroSlides.status, "published")),
+    db.select({ count: count() }).from(highlights),
+    db.select({ count: count() }).from(highlights).where(eq(highlights.status, "published")),
+    db.select({ count: count() }).from(testimonials),
+    db.select({ count: count() }).from(testimonials).where(eq(testimonials.status, "published")),
+    db.select({ count: count() }).from(partners),
+    db.select({ count: count() }).from(partners).where(eq(partners.status, "published")),
+    db.select({ count: count() }).from(news),
+    db.select({ count: count() }).from(news).where(eq(news.published, true)),
+    db.select({ count: count() }).from(events).where(sql`${events.date} >= ${today}::date`),
+    db.select({ count: count() }).from(events).where(sql`${events.date} < ${today}::date`),
+    db.select({ count: count() }).from(gallery),
+    db.select({ count: count() }).from(programs),
+    db.select({ count: count() }).from(programs).where(eq(programs.published, true)),
+  ]);
+
+  const n = (r: { count: number }) => Number(r.count);
+
+  return {
+    hero: { total: n(heroTotal), published: n(heroPub), draft: n(heroTotal) - n(heroPub) },
+    highlights: { total: n(hlTotal), published: n(hlPub), draft: n(hlTotal) - n(hlPub) },
+    testimonials: { total: n(testTotal), published: n(testPub), draft: n(testTotal) - n(testPub) },
+    partners: { total: n(partTotal), published: n(partPub), draft: n(partTotal) - n(partPub) },
+    news: { total: n(newsTotal), published: n(newsPub), draft: n(newsTotal) - n(newsPub) },
+    events: { total: n(evtUpcoming) + n(evtPast), upcoming: n(evtUpcoming), past: n(evtPast) },
+    gallery: { total: n(galTotal) },
+    programs: { total: n(progTotal), published: n(progPub) },
   };
 }
 
