@@ -151,6 +151,21 @@ export type TranslationKey =
   | "footer.social"
   | "footer.copyright"
   
+  // Events Album
+  | "events.album.title"
+  | "events.album.viewFull"
+  | "events.album.backToEvent"
+  | "events.album.noPhotos"
+
+  // News Album
+  | "news.album.title"
+  | "news.album.viewFull"
+  | "news.album.backToNews"
+  | "news.album.noPhotos"
+
+  // Album shared
+  | "album.photos"
+
   // Accessibility
   | "a11y.menu"
   | "a11y.close"

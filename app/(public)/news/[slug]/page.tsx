@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getNewsArticleBySlug, getRelatedNews } from "@/lib/db/queries/news";
+import { getPhotosByNewsId } from "@/lib/db/queries/albums";
 import { getTranslations, getCurrentLang } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
@@ -48,7 +49,13 @@ export default async function NewsDetailPage({ params, searchParams }: NewsDetai
     notFound();
   }
 
-  const relatedArticles = await getRelatedNews(article.category, slug, 3);
+  const [relatedArticles, allPhotos] = await Promise.all([
+    getRelatedNews(article.category, slug, 3),
+    getPhotosByNewsId(parseInt(article.id)),
+  ]);
+
+  const previewPhotos = allPhotos.slice(0, 5);
+  const totalPhotos = allPhotos.length;
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl">
@@ -71,11 +78,12 @@ export default async function NewsDetailPage({ params, searchParams }: NewsDetai
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <span>{new Date(article.date).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}</span>
+              <span>
+                {new Date(article.date).toLocaleDateString(
+                  lang === "fr" ? "fr-FR" : "en-US",
+                  { year: "numeric", month: "long", day: "numeric" }
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -92,8 +100,38 @@ export default async function NewsDetailPage({ params, searchParams }: NewsDetai
         )}
 
         <div className="prose prose-lg max-w-none mb-12">
-          <p className="text-lg leading-relaxed whitespace-pre-line">{article.content[lang]}</p>
+          <p className="text-lg leading-relaxed whitespace-pre-line">
+            {article.content[lang]}
+          </p>
         </div>
+
+        {/* Album preview strip — only rendered when photos exist */}
+        {previewPhotos.length > 0 && (
+          <section className="mb-12" aria-label={t("news.album.title")}>
+            <h2 className="text-2xl font-bold mb-6">{t("news.album.title")}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+              {previewPhotos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="relative aspect-square rounded-lg overflow-hidden"
+                >
+                  <Image
+                    src={photo.image}
+                    alt={lang === "fr" ? photo.altFr : photo.altEn}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, 20vw"
+                  />
+                </div>
+              ))}
+            </div>
+            <Button asChild variant="outline">
+              <Link href={`/news/${slug}/photos`}>
+                {t("news.album.viewFull", { count: String(totalPhotos) })}
+              </Link>
+            </Button>
+          </section>
+        )}
 
         <Separator className="my-12" />
 

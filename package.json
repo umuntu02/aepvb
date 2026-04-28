@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run db:reset && drizzle-kit push --force && npm run db:seed && next build",
+    "build": "drizzle-kit push --force && next build",
     "db:reset": "tsx lib/db/reset.ts",
     "start": "next start",
     "lint": "eslint",

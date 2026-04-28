@@ -11,6 +11,7 @@ import { ImageUpload } from "@/app/admin/_components/ImageUpload";
 import { ConfirmDialog } from "@/app/admin/_components/ConfirmDialog";
 import { useAdminToast } from "@/app/admin/(dashboard)/_components/AdminToastProvider";
 import { adminFr } from "@/lib/i18n/admin-fr";
+import { AlbumSection } from "@/app/admin/_components/AlbumSection";
 import type { News } from "@/lib/db/schema";
 
 interface Props {
@@ -332,6 +333,23 @@ export default function NewsForm({ initialData }: Props) {
         onCancel={() => setShowDelete(false)}
         loading={deleting}
       />
+
+      {isEdit && initialData.slug && (
+        <AlbumSection
+          contentType="news"
+          recordId={initialData.id}
+          slug={initialData.slug}
+          defaultAltFr={titleFr}
+          defaultAltEn={titleEn}
+        />
+      )}
+
+      {/* DECISION: album upload requires an existing record id — note shown in creation mode */}
+      {!isEdit && (
+        <p className="text-sm text-gray-500 mt-6 pt-6 border-t border-gray-200">
+          {adminFr.albumSaveFirst}
+        </p>
+      )}
     </>
   );
 }

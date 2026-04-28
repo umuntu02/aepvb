@@ -120,6 +120,23 @@ export const partners = pgTable("partners", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// DECISION: no separate albums table — the album IS the event or news article.
+// album_photos links directly to the parent record. Exactly one of event_id or
+// news_id must be set — enforced in application layer.
+export const albumPhotos = pgTable("album_photos", {
+  id: serial("id").primaryKey(),
+  eventId: integer("event_id").references(() => events.id, { onDelete: "cascade" }),
+  newsId: integer("news_id").references(() => news.id, { onDelete: "cascade" }),
+  image: text("image").notNull(),
+  altFr: text("alt_fr").notNull(),
+  altEn: text("alt_en").notNull(),
+  ordinal: integer("ordinal").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type AlbumPhotoRow = typeof albumPhotos.$inferSelect;
+export type NewAlbumPhoto = typeof albumPhotos.$inferInsert;
+
 export type News = typeof news.$inferSelect;
 export type NewNews = typeof news.$inferInsert;
 export type ProgramRow = typeof programs.$inferSelect;

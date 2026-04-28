@@ -151,6 +151,18 @@ export const adminFr = {
   teamColPhoto: "Photo",
   teamReorder: "Faites glisser pour réordonner",
 
+  // Album photos (events & news)
+  albumTitle: "Album photos",
+  albumSubtitleEvents: "Ces photos apparaîtront sur la page de l'événement.",
+  albumSubtitleNews: "Ces photos apparaîtront sur la page de l'actualité.",
+  albumUploadZone: "Cliquez ou déposez vos photos ici",
+  albumUploading: "Téléchargement en cours…",
+  albumDeleteConfirm: "Supprimer cette photo ? Cette action est irréversible.",
+  albumEditAlt: "Modifier le texte alternatif",
+  albumDragHandle: "Réordonner",
+  albumNoPhotos: "Aucune photo pour l'instant.",
+  albumSaveFirst: "Vous pourrez ajouter des photos après avoir sauvegardé.",
+
   // Partenaires
   partnersTitle: "Partenaires",
   partnersAdd: "+ Ajouter un partenaire",

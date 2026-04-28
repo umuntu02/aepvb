@@ -151,6 +151,21 @@ export const fr: Translations = {
   "footer.social": "Suivez-nous",
   "footer.copyright": "© {year} A.E.P.V.B – Burundi. Tous droits réservés.",
   
+  // Events Album
+  "events.album.title": "Photos de l'événement",
+  "events.album.viewFull": "Voir l'album complet ({count} photos)",
+  "events.album.backToEvent": "← Retour à l'événement",
+  "events.album.noPhotos": "Aucune photo pour cet événement.",
+
+  // News Album
+  "news.album.title": "Photos associées",
+  "news.album.viewFull": "Voir l'album complet ({count} photos)",
+  "news.album.backToNews": "← Retour à l'actualité",
+  "news.album.noPhotos": "Aucune photo pour cet article.",
+
+  // Album shared
+  "album.photos": "Photos",
+
   // Accessibility
   "a11y.menu": "Menu",
   "a11y.close": "Fermer",

@@ -17,11 +17,21 @@ function getBaseDir(): string {
   return resolve(raw);
 }
 
-export async function getUploadDir(contentType: string): Promise<string> {
-  if (!ALLOWED_CONTENT_TYPES.has(contentType)) {
-    throw new Error(`Invalid content type: ${contentType}`);
+// contentTypePath may be a bare type ('events') or a subpath ('events/album-slug').
+// The first segment must be in ALLOWED_CONTENT_TYPES; no traversal is allowed.
+export async function getUploadDir(contentTypePath: string): Promise<string> {
+  const firstSegment = contentTypePath.split("/")[0];
+  if (!ALLOWED_CONTENT_TYPES.has(firstSegment)) {
+    throw new Error(`Invalid content type: ${firstSegment}`);
   }
-  const dir = join(getBaseDir(), contentType);
+  if (
+    contentTypePath.includes("..") ||
+    contentTypePath.includes("\\") ||
+    contentTypePath.includes("\0")
+  ) {
+    throw new Error(`Invalid path: ${contentTypePath}`);
+  }
+  const dir = join(getBaseDir(), ...contentTypePath.split("/"));
   await mkdir(dir, { recursive: true });
   return dir;
 }
@@ -30,26 +40,52 @@ export function getPublicPath(contentType: string, filename: string): string {
   return `/api/images/${contentType}/${filename}`;
 }
 
-// Deletes an image that was stored via the upload route.
-// Safe to call with any path: silently no-ops on /img/ paths (static files)
-// and on missing files — the caller's DB operation must not be blocked.
+// Returns the absolute path for an album directory and creates it if absent.
+export async function getAlbumDir(
+  contentType: "events" | "news",
+  slug: string
+): Promise<string> {
+  const dir = join(getBaseDir(), contentType, `album-${slug}`);
+  await mkdir(dir, { recursive: true });
+  return dir;
+}
+
+// Returns the public URL path for a photo inside an album.
+export function getAlbumPublicPath(
+  contentType: "events" | "news",
+  slug: string,
+  filename: string
+): string {
+  return `/api/images/${contentType}/album-${slug}/${filename}`;
+}
+
+// Deletes an image stored via the upload route.
+// Handles flat paths (/api/images/contentType/filename) and
+// album paths (/api/images/contentType/album-slug/filename).
+// Safe to call with any path: silently no-ops on /img/ paths and missing files.
 export async function deleteUploadedFile(
   imagePath: string | null | undefined
 ): Promise<void> {
   if (!imagePath?.startsWith("/api/images/")) return;
 
   const parts = imagePath.split("/");
-  // "/api/images/contentType/filename" → ["", "api", "images", contentType, filename]
-  if (parts.length !== 5) return;
+  // ["", "api", "images", ...segments]
+  const segments = parts.slice(3);
 
-  const contentType = parts[3];
-  const filename = parts[4];
+  if (segments.length < 2) return;
 
+  const contentType = segments[0];
   if (!ALLOWED_CONTENT_TYPES.has(contentType)) return;
-  // DECISION: reject filenames with traversal sequences before building path.
-  if (!filename || filename.includes("..") || filename.includes("/") || filename.includes("\\")) return;
 
-  const filePath = join(getBaseDir(), contentType, filename);
+  // DECISION: reject any traversal sequence in any segment before building path.
+  if (
+    segments.some(
+      (s) => !s || s.includes("..") || s.includes("\\") || s.includes("\0")
+    )
+  )
+    return;
+
+  const filePath = join(getBaseDir(), ...segments);
   try {
     await unlink(filePath);
   } catch {

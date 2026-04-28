@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getEventBySlug, getRelatedEvents } from "@/lib/db/queries/events";
+import { getPhotosByEventId } from "@/lib/db/queries/albums";
 import { getTranslations, getCurrentLang } from "@/lib/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
@@ -48,8 +49,14 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
     notFound();
   }
 
-  const relatedEvents = await getRelatedEvents(event.type, slug, 3);
+  const [relatedEvents, allPhotos] = await Promise.all([
+    getRelatedEvents(event.type, slug, 3),
+    getPhotosByEventId(parseInt(event.id)),
+  ]);
+
   const isPast = new Date(event.date) < new Date();
+  const previewPhotos = allPhotos.slice(0, 5);
+  const totalPhotos = allPhotos.length;
 
   return (
     <div className="container mx-auto px-4 max-w-4xl">
@@ -126,6 +133,34 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
               {t("events.register")}
             </Button>
           </div>
+        )}
+
+        {/* Album preview strip — only rendered when photos exist */}
+        {previewPhotos.length > 0 && (
+          <section className="mb-12" aria-label={t("events.album.title")}>
+            <h2 className="text-2xl font-bold mb-6">{t("events.album.title")}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+              {previewPhotos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="relative aspect-square rounded-lg overflow-hidden"
+                >
+                  <Image
+                    src={photo.image}
+                    alt={lang === "fr" ? photo.altFr : photo.altEn}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, 20vw"
+                  />
+                </div>
+              ))}
+            </div>
+            <Button asChild variant="outline">
+              <Link href={`/events/${slug}/photos`}>
+                {t("events.album.viewFull", { count: String(totalPhotos) })}
+              </Link>
+            </Button>
+          </section>
         )}
 
         <Separator className="my-12" />

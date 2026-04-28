@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     localPatterns: [
       { pathname: "/api/images/**" },
       { pathname: "/img/**" },
+      { pathname: "/favicon_io/**" },
     ],
   },
 };
